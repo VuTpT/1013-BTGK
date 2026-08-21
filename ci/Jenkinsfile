@@ -29,7 +29,7 @@ pipeline {
 
     environment {
         MAVEN_OPTS = '-Dfile.encoding=UTF-8'
-        WORKDIR = 'BTCK'
+        WORKDIR = '.'          // goc repo Git chinh la thu muc BTCK -> pom.xml nam ngay root
     }
 
     stages {
@@ -60,10 +60,10 @@ pipeline {
             }
             post {
                 always {
-                    junit allowEmptyResults: true, testResults: 'BTCK/target/surefire-reports/*.xml'
-                    archiveArtifacts artifacts: 'BTCK/target/traces/*.zip', allowEmptyArchive: true
+                    junit allowEmptyResults: true, testResults: 'target/surefire-reports/*.xml'
+                    archiveArtifacts artifacts: 'target/traces/*.zip', allowEmptyArchive: true
                     publishHTML(target: [
-                            reportDir : 'BTCK/target/site/jacoco',
+                            reportDir : 'target/site/jacoco',
                             reportFiles: 'index.html',
                             reportName: 'JaCoCo Coverage',
                             keepAll   : true, alwaysLinkToLastBuild: true, allowMissing: true
@@ -78,7 +78,7 @@ pipeline {
             // Ca 4 tang test ghi chung vao MOT thu muc allure-results duy nhat
             allure includeProperties: false,
                     jdk: '',
-                    results: [[path: 'BTCK/target/allure-results']]
+                    results: [[path: 'target/allure-results']]
         }
         failure {
             echo 'Build FAIL -> tao issue Bug tren Jira, gan link build nay vao phan mo ta.'

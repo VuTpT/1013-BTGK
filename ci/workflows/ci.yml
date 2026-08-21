@@ -1,4 +1,7 @@
-# Cổng kiểm tra nhanh cho mỗi Pull Request (chép sang <repo-root>/.github/workflows/ci.yml).
+# Cổng kiểm tra nhanh cho mỗi Pull Request.
+#
+# LƯU Ý VỀ ĐƯỜNG DẪN: gốc của repo Git CHÍNH LÀ thư mục BTCK (pom.xml nằm ngay
+# root), nên mọi đường dẫn ở đây tính từ root - KHÔNG thêm tiền tố "BTCK/".
 #
 # Phân vai với Jenkins:
 #   - GitHub Actions (file này): NHẸ - chỉ chạy tầng unit, mục tiêu < 3 phút, bật branch
@@ -32,7 +35,6 @@ jobs:
 
       # Chỉ chạy các lớp test trong gói unit: tầng UI cần trình duyệt nên để Jenkins lo.
       - name: Chạy unit test và đo độ phủ
-        working-directory: BTCK
         run: mvn -B test jacoco:report -Dtest='vn.edu.ktpm.minishop.unit.*Test' -DfailIfNoSpecifiedTests=false
 
       - name: Tải lên kết quả Allure + JaCoCo
@@ -41,6 +43,6 @@ jobs:
         with:
           name: unit-test-results
           path: |
-            BTCK/target/allure-results
-            BTCK/target/surefire-reports
-            BTCK/target/site/jacoco
+            target/allure-results
+            target/surefire-reports
+            target/site/jacoco
