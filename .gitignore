@@ -1,8 +1,115 @@
+# ============================================================================
+#  MiniShop Automation - .gitignore
+#  Nguyen tac: chi commit MA NGUON + TAI LIEU. Moi thu do build/chay test
+#  sinh ra deu bo qua (co the tao lai bang: mvn clean test)
+# ============================================================================
+
+# ---------------------------------------------------------------- Maven build
 target/
+bin/
+build/
+out/
+dependency-reduced-pom.xml
+pom.xml.tag
+pom.xml.releaseBackup
+pom.xml.versionsBackup
+pom.xml.next
+release.properties
+.mvn/timing.properties
+.mvn/wrapper/maven-wrapper.jar
+buildNumber.properties
+
+# --------------------------------------------------- File bien dich Java / JVM
+*.class
+*.jar
+*.war
+*.ear
+hs_err_pid*.log
+replay_pid*.log
+*.hprof
+
+# ---------------------------------------------------- Bao cao & ket qua test
+test-output/
+surefire-reports/
+failsafe-reports/
 allure-results/
 allure-report/
 .allure/
+*.exec
+jacoco.exec
+site/
+
+# ------------------------------------------- Playwright / Selenium / Appium
+test-results/
+playwright-report/
+playwright/.cache/
+.playwright/
+node_modules/
+screenshots/
+videos/
+traces/
+*.mp4
+*.webm
+chromedriver*
+geckodriver*
+msedgedriver*
+drivers/
+appium*.log
+
+# ----------------------------------------------------------------- Log & temp
 *.log
+logs/
+*.tmp
+*.temp
+*.bak
+*.orig
+*.rej
+*~
+
+# ------------------------------------------------------------- File nen/dong goi
+docs.zip
+*.zip
+*.7z
+*.rar
+
+# ------------------------------------------------------------------ Eclipse
+.classpath
+.project
+.settings/
+.metadata/
+.factorypath
+.apt_generated/
+.recommenders/
+
+# ------------------------------------------------------- IntelliJ IDEA / VS Code
 .idea/
 *.iml
+*.ipr
+*.iws
+.vscode/
+.vs/
+
+# ------------------------------------------------------------------ NetBeans
 nbproject/private/
+nbbuild/
+nbdist/
+.nb-gradle/
+
+# ------------------------------------------------------- Bi mat / cau hinh may
+.env
+.env.*
+local.properties
+secrets.properties
+credentials.properties
+*.p12
+*.pem
+*.key
+*.keystore
+
+# ------------------------------------------------------------ He dieu hanh (OS)
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+.DS_Store
+._*
