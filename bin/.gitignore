@@ -1,0 +1,8 @@
+target/
+allure-results/
+allure-report/
+.allure/
+*.log
+.idea/
+*.iml
+nbproject/private/

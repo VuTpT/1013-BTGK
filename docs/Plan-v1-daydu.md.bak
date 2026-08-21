@@ -1,0 +1,415 @@
+# KẾ HOẠCH THỰC HIỆN SEMINAR – AUTOMATION TEST
+
+> ## ⚙️ TRẠNG THÁI TRIỂN KHAI (cập nhật 16/08/2026)
+>
+> Kế hoạch này **đã được hiện thực**, không còn là dự kiến. Tóm tắt những gì đã có trong repo:
+>
+> | Hạng mục | Trạng thái | Nơi xem |
+> | --- | --- | --- |
+> | Đề bài / đặc tả SUT (tự đặt) | ✅ Xong | [DeBai-SUT.md](DeBai-SUT.md) |
+> | SUT: web app + thư viện nghiệp vụ Java | ✅ Xong | `sut-web/`, `automation/sut-core/` |
+> | Thiết kế test case theo 5 kỹ thuật đã học | ✅ Xong | [TestDesign-Techniques.md](TestDesign-Techniques.md), [TestCases.md](TestCases.md) |
+> | Tầng 1 – JUnit 5 + EasyMock + JaCoCo | ✅ **144 TC pass**, phủ 91,3% lệnh | `automation/unit-tests/` |
+> | Tầng 2 – Selenium 4 + TestNG (POM, Grid, retry, data-driven) | ✅ **36 TC pass** (48 s) | `automation/web-selenium/` |
+> | Tầng 2b – Playwright đối chứng | ✅ **5 TC pass** | `automation/web-playwright/` |
+> | Tầng 3 – Appium | ⏸ Mã đã viết, chờ Emulator | `automation/mobile-appium/` |
+> | Allure (link ngược Jira) | ✅ Đã cấu hình | `*/src/test/resources/allure.properties` |
+> | Jenkins + GitHub Actions | ✅ Đã viết cấu hình | `ci/Jenkinsfile`, `ci/workflows/ci.yml` |
+> | Jira | ✅ 33 issue sẵn sàng nhập | [jira-import.csv](jira-import.csv) |
+> | Báo cáo + defect log + so sánh công cụ | ✅ Xong | [Report.md](Report.md) |
+> | Quay video | ⏳ Việc còn lại của nhóm | kịch bản ở mục 10 bên dưới |
+>
+> Cách chạy: xem [README](../README.md) hoặc [Setup-Guide.md](Setup-Guide.md).
+
+> **Môn:** Kiểm thử phần mềm (1013) – Bài tập cuối kỳ / Seminar nhóm 2 bạn
+> **Sản phẩm nộp:** 01 video demo step-by-step + source code trên GitHub + tài liệu (docs)
+> **Deadline:** 00:00:00 ngày 23/08/2026 (hết W14) → mốc chốt thực tế: **22:00 ngày 22/08/2026**
+> **Ngày lập plan:** 16/08/2026 → còn **7 ngày**
+
+---
+
+## 0. Tóm tắt đề bài & cách đáp ứng
+
+Yêu cầu gốc: *"Step by step từ cài đặt, ví dụ, lập test case, demo, quản lý test case bằng cách **kết hợp các tool** bên dưới (hoặc bất kỳ tool nào khác)"*: JUnit, TestNG – Selenium, Playwright, Appium – Allure, Jira, Jenkins, GitHub.
+
+⇒ Trọng tâm chấm điểm là **sự KẾT HỢP**: các tool phải ghép thành **một dây chuyền kiểm thử tự động khép kín**, không phải trình bày rời rạc từng tool.
+
+| Yêu cầu trong đề | Cách nhóm đáp ứng |
+| --- | --- |
+| Cài đặt (step by step) | Phần 3 – checklist cài đặt toàn bộ 9 tool, chụp màn hình từng bước |
+| Ví dụ | 3 tầng: Unit (Calculator/Rational) → Web UI (Selenium & Playwright) → Mobile (Appium) |
+| Lập test case | Kỹ thuật đã học W5–W8: phân hoạch tương đương, giá trị biên, bảng quyết định, sơ đồ chuyển trạng thái, phủ mã lệnh |
+| Demo | Chạy thật: `mvn test`, TestNG suite song song, Selenium Grid, Playwright trace, Allure report, Jenkins pipeline |
+| Quản lý test case | Jira (board/sprint/priority/assign) liên thông GitHub – Jenkins – Allure |
+| **Kết hợp tool** | Sơ đồ dây chuyền ở mục 1 – mỗi tool giữ **một mắt xích riêng**, không tool nào thừa |
+
+---
+
+## 1. DÂY CHUYỀN KẾT HỢP TOOL (xương sống của seminar)
+
+```
+        ┌──────────────────────── JIRA (quản lý test case, sprint, bug) ───────────────────────┐
+        │                                                                                      │
+        ▼                                                                                      │
+[1] Thiết kế TC ──► [2] GITHUB (source + branch/PR theo mã Jira)                               │
+                              │                                                                │
+                              ├──► [3a] GITHUB ACTIONS  : cổng kiểm tra nhanh mỗi Pull Request │
+                              │                                                                │
+                              └──► [3b] JENKINS pipeline: chạy đầy đủ mọi tầng test            │
+                                          │                                                    │
+                    ┌─────────────────────┼─────────────────────┬──────────────────┐           │
+                    ▼                     ▼                     ▼                  ▼           │
+              [4] JUNIT 5           [5] TESTNG +          [6] TESTNG +        [7] TESTNG +      │
+              (tầng UNIT:            SELENIUM              PLAYWRIGHT          APPIUM           │
+               + EasyMock,           (Web UI qua Grid)     (Web UI hiện đại)   (Mobile)         │
+               + JaCoCo)                                                                       │
+                    └─────────────────────┴─────────────────────┴──────────────────┘           │
+                                          │                                                    │
+                                          ▼                                                    │
+                                   [8] ALLURE REPORT ──── link @Issue ngược về ─────────────────┘
+                                   (gộp kết quả 4 tầng, history trend)
+```
+
+**Vai trò riêng của từng tool – lý do không tool nào bị thừa:**
+
+| # | Tool | Mắt xích đảm nhiệm | Vì sao cần dù đã có tool "na ná" |
+| --- | --- | --- | --- |
+| 1 | **Jira** | Quản lý test case, độ ưu tiên, giao việc, sprint, bug | Đầu vào và đầu ra của cả dây chuyền |
+| 2 | **GitHub** | SCM: branch/commit/PR gắn mã Jira, review chéo | Nơi lưu và cộng tác trên code test |
+| 3a | **GitHub Actions** | CI **nhẹ, chạy trên cloud**: build + unit test cho mỗi PR (gate trước merge) | Nhanh, không cần máy nhóm bật; đóng vai "kiểm tra trước cửa" |
+| 3b | **Jenkins** | CI **nặng, chạy on-premise**: chạy full suite UI + mobile cần browser/emulator thật, publish Allure | Actions không tiện chạy Grid/Emulator; Jenkins đóng vai "dây chuyền chính" ⇒ hai CI **bổ sung** chứ không trùng |
+| 4 | **JUnit 5** | Framework tầng **unit** (+ EasyMock, JaCoCo) | Đã học W8–W11, mạnh về `@ParameterizedTest`, `@Nested`, assertion |
+| 5 | **TestNG** | Framework tầng **UI/E2E**: `testng.xml` suite, `groups` smoke/regression, `parallel`, `IRetryAnalyzer` cho test flaky | Đúng thế mạnh TestNG mà JUnit yếu ⇒ hai framework **chia theo tầng**, không trùng |
+| 6 | **Selenium** (IDE + WebDriver + Grid) | Web UI "chuẩn công nghiệp": IDE tạo nháp, WebDriver viết POM, Grid chạy phân tán đa browser | Tool đã học W12, chuẩn W3C |
+| 7 | **Playwright** | Web UI thế hệ mới: auto-wait, trace viewer, tái dùng session, đa engine chỉ 1 config | Dùng để **đối chứng** — viết lại đúng 5 TC của Selenium để so sánh định lượng |
+| 8 | **Appium** | Tầng **mobile** – không tool nào khác thay được | Mở rộng phạm vi ra ngoài web |
+| 9 | **Allure** | Gộp kết quả cả 4 tầng thành 1 báo cáo, history trend, link ngược Jira | Điểm hội tụ của toàn dây chuyền |
+
+> **Điểm nhấn học thuật:** mục 7 (Playwright) và mục 5 (TestNG) không phải để "dùng cho đủ" — chúng được đặt vào vị trí **so sánh có kiểm soát**: cùng SUT, cùng test case, khác tool ⇒ rút ra kết luận định lượng (số dòng code, thời gian chạy, độ ổn định). Đây là phần dễ ghi điểm nhất khi phản biện.
+
+---
+
+## 2. Phạm vi & Hệ thống được kiểm thử (SUT)
+
+> **Quyết định đã chốt khi triển khai:** thay vì dùng site demo trên Internet (SauceDemo/OpenCart như
+> dự kiến ban đầu), nhóm **tự xây SUT "MiniShop"**. Lý do: chạy **offline**, kết quả **tái lập 100%**,
+> và quan trọng nhất — **cùng một đặc tả nghiệp vụ được kiểm thử ở hai mức** (unit Java + giao diện web),
+> nhờ đó ma trận truy vết mới thực sự có ý nghĩa. Đặc tả đầy đủ: [DeBai-SUT.md](DeBai-SUT.md).
+
+| Tầng | SUT | Ghi chú |
+| --- | --- | --- |
+| Unit | `automation/sut-core` — đăng nhập (khóa sau 3 lần sai), giỏ hàng, khuyến mãi, validate giao hàng, `Calculator` (W8), `Rational` (W11) | Tái sử dụng bài cũ, bổ sung nghiệp vụ đủ để áp dụng cả 5 kỹ thuật đã học |
+| Web UI | `sut-web` — SPA tĩnh HTML/CSS/JS, phục vụ bởi web server nhúng sẵn trong JDK | 3 tài khoản mẫu: thường / VIP / bị khóa ⇒ minh họa được cả pass lẫn fail |
+| Web UI (record) | Cũng chính `sut-web` | Dùng cho phần record & playback bằng Selenium IDE |
+| Mobile | `sut-web` mở trên Chrome của Android Emulator | 3 test case minh họa Appium |
+
+**Ngoài phạm vi** (nói rõ trong video): performance test, security test, kiểm thử API chuyên sâu.
+
+---
+
+## 3. GIAI ĐOẠN 1 – CÀI ĐẶT MÔI TRƯỜNG (step-by-step, chụp màn hình)
+
+> Mỗi bước **bắt buộc chụp màn hình** lưu `docs/images/` đặt tên `01-jdk.png`, `02-maven.png`, … để dựng video và viết `Setup-Guide.md`.
+
+**Phiên bản chốt:**
+
+```text
+Java 17 (đã có: 17.0.12)        Maven 3.9.16 (có sẵn: 1013\apache-maven-3.9.16)
+JUnit 5.10.2                     TestNG 7.10.x            EasyMock 5.4.x
+Selenium Java 4.21.x             Selenium Server (Grid) 4.21.x
+Playwright Java 1.44.x           Appium Server 2.x + java-client 9.x
+JaCoCo 0.8.12                    Allure 2.27.x (allure-junit5, allure-testng, CLI)
+Jenkins LTS 2.4xx                GitHub + GitHub Actions        Jira Cloud (free)
+```
+
+**Các bước:**
+
+1. **JDK 17** – kiểm tra `java -version`; đặt `JAVA_HOME`.
+2. **Maven 3.9.16** – có sẵn trong repo; thêm `...\apache-maven-3.9.16\bin` vào `PATH`; kiểm tra `mvn -v` (**hiện chưa có trong PATH → làm ngay bước này**).
+3. **IDE** – NetBeans (đúng môi trường W10–W12); cài plugin TestNG.
+4. **Git + GitHub** – tạo repo public `KTPM-Automation-Seminar`, clone, commit đầu.
+5. **Node.js LTS** – phục vụ Appium và Allure CLI.
+6. **JUnit 5 + TestNG** – khai báo dependency trong `pom.xml` (không cần cài rời).
+7. **Selenium** – khai báo `selenium-java`. Từ 4.6+ có **Selenium Manager tự tải ChromeDriver** ⇒ **không cần** `System.setProperty("webdriver.chrome.driver", …)` như bài W12 → nêu điểm khác biệt này trong video (điểm cộng).
+8. **Selenium IDE** – cài extension Chrome/Firefox.
+9. **Selenium Grid** – tải `selenium-server-4.x.x.jar`, chạy `java -jar selenium-server-4.x.x.jar standalone`, mở `localhost:4444/ui`.
+10. **Playwright** – thêm dependency + `mvn exec:java -D exec.mainClass=com.microsoft.playwright.CLI -D exec.args="install"` để tải browser (**làm sớm từ D2**, tránh nghẽn mạng sát ngày).
+11. **Appium** – `npm i -g appium`, `appium driver install uiautomator2`, Android Studio + Emulator, chạy `appium-doctor`; cài **Appium Inspector**.
+12. **Allure CLI** – cài qua scoop/npm; kiểm tra `allure --version`.
+13. **Jenkins** – `java -jar jenkins.war --httpPort=8080`, unlock, cài plugin: *Git, Maven Integration, Pipeline, Allure Jenkins Plugin, JUnit, HTML Publisher*.
+14. **Jira Cloud** – tạo site free, project **KTPM** (Scrum), bật issue type **Test**; cài app **GitHub for Jira**.
+
+**Tiêu chí hoàn thành GĐ1:** `mvn -v`, `allure --version`, `appium -v` chạy được; Jenkins mở `localhost:8080`; Grid mở `localhost:4444`; repo GitHub có commit đầu; Jira board tồn tại.
+
+---
+
+## 4. GIAI ĐOẠN 2 – QUẢN LÝ TEST CASE: JIRA ⟷ GITHUB
+
+### 4.1 Thiết lập Jira
+
+1. Project **KTPM – Automation Seminar** (template Scrum), Sprint 1: 16/08 → 22/08.
+2. **Epic** theo đúng các mắt xích ở mục 1:
+   - `EPIC-1 Unit Testing (JUnit 5 + EasyMock + JaCoCo)`
+   - `EPIC-2 Web UI – Selenium + TestNG + Grid`
+   - `EPIC-3 Web UI – Playwright (đối chứng)`
+   - `EPIC-4 Mobile – Appium`
+   - `EPIC-5 CI/CD & Reporting (GitHub Actions + Jenkins + Allure)`
+3. **Mỗi test case = 1 issue** type `Test`, tiêu đề `TC-WEB-001 Login với tài khoản hợp lệ`; nội dung: **Precondition – Steps – Test data – Expected result – Kỹ thuật thiết kế (EP/BVA/DT/ST) – Priority – Assignee**.
+4. **Độ ưu tiên**: Highest (login, checkout) → High → Medium → Low (giao diện phụ).
+5. **Giao việc**: assign theo mục 8; board `To Do → In Progress → In Review → Done`.
+6. **Theo dõi tiến độ**: Sprint burndown + JQL chiếu trong video:
+   - `project = KTPM AND type = Test AND status != Done ORDER BY priority DESC`
+   - `project = KTPM AND type = Bug AND status = Open`
+7. **Quản lý lỗi**: test fail → tạo **Bug**, link `is caused by` tới test case, đính kèm screenshot + log lấy từ Allure.
+
+### 4.2 Tích hợp Jira ⟷ GitHub
+
+8. App **GitHub for Jira** → Jira hiển thị branch / commit / PR / build ngay trong issue.
+9. Quy ước trình bày trong video:
+   - Nhánh `feature/KTPM-12-login-tests`
+   - Commit `KTPM-12 add login test cases with @ParameterizedTest`
+   - PR title chứa mã issue.
+10. **Vòng đời một test case** (quay nguyên vòng này làm demo): tạo TC trên Jira → tạo nhánh → viết test → PR → thành viên còn lại review → GitHub Actions xanh → merge `main` → Jenkins chạy full suite → Allure cập nhật → issue `Done`.
+
+**Deliverable GĐ2:** ≥ 35 issue test case thật trên Jira + `docs/TraceabilityMatrix.md` map *Yêu cầu ↔ TC ID ↔ Jira key ↔ file test ↔ kết quả*.
+
+---
+
+## 5. GIAI ĐOẠN 3 – THIẾT KẾ TEST CASE (dùng kiến thức đã học W5–W8)
+
+> Phần thể hiện **"sử dụng các phần đã học của môn"** — làm **trước** khi code. Ghi vào `docs/TestDesign-Techniques.md` và `docs/TestCases.md`.
+
+### 5.1 Test Plan (`docs/TestPlan.md`)
+
+Bố cục chuẩn: Mục tiêu – Phạm vi – Chiến lược (mức unit / system; loại functional, regression) – Môi trường – Tiêu chí vào/ra – Rủi ro – Lịch trình – Phân công.
+
+### 5.2 Kỹ thuật hộp đen
+
+**(a) Phân hoạch tương đương – như Bài 7.** Áp dụng cho form login của MiniShop: username {rỗng, hợp lệ, không tồn tại, bị khóa}, password {rỗng, đúng, sai}. Lập bảng lớp hợp lệ / không hợp lệ, đánh số EP-1…EP-n, mỗi lớp ≥ 1 test case.
+
+**(b) Phân tích giá trị biên (BVA) – như Bài 7.** Áp dụng cho: số lượng sản phẩm trong giỏ, độ dài họ tên khi checkout (0, 1, 50, 51 ký tự), `Rational` với mẫu số = 0 / âm / `Long.MAX_VALUE`. Ghi rõ công thức: BVA cơ bản `4n+1`, robust `6n+1` → nêu con số cụ thể.
+
+**(c) Bảng quyết định – như Bài 5.** Áp dụng luồng **Checkout**: điều kiện {đã login, giỏ có sản phẩm, đã nhập đủ thông tin giao hàng} → hành động {cho Finish, báo lỗi, chặn}. Vẽ đủ 2³ = 8 rule, rút gọn rule trùng, mỗi rule → 1 test case.
+
+**(d) Sơ đồ chuyển trạng thái – như Bài 6.** Áp dụng cho **phiên đăng nhập**: `Chưa đăng nhập → Đang nhập → Nhập sai (n<3) → Khóa tạm → Đã đăng nhập → Đăng xuất`. Vẽ bằng Mermaid, lập bảng chuyển trạng thái, thiết kế test case phủ hết transition (0-switch coverage).
+
+### 5.3 Kỹ thuật hộp trắng – như Bài 7 (câu 3, 4)
+
+- Vẽ **lưu đồ (flow graph)** cho `Rational.divide()` và `GCD()`.
+- Tính **độ phức tạp Cyclomatic** V(G) = E − N + 2 → số đường đi độc lập → số test case tối thiểu.
+- Thiết kế test case đạt **statement coverage** và **branch coverage** 100%; đo bằng **JaCoCo** (`mvn test jacoco:report`), chiếu số liệu trong video.
+
+### 5.4 Mẫu test case dùng thống nhất (docs + Jira)
+
+| ID | Module | Tiêu đề | Kỹ thuật | Precondition | Steps | Test data | Expected | Priority | Assignee | Jira key | Kết quả |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+
+**Số lượng mục tiêu:** ≥ 20 unit TC (chuẩn Bài 8) + ≥ 15 web UI TC (Selenium) + 5 TC viết lại bằng Playwright + 3 mobile TC.
+
+---
+
+## 6. GIAI ĐOẠN 4 – HIỆN THỰC AUTOMATION
+
+**Cấu trúc dự án (Maven multi-module):**
+
+```text
+BTCK/
+├─ docs/            Requirements, Plan, TestPlan, TestCases, TestDesign-Techniques,
+│                   Setup-Guide, TraceabilityMatrix, Report, images/
+├─ automation/
+│  ├─ pom.xml                 (parent – quản lý version tập trung)
+│  ├─ unit-tests/             JUnit 5 + EasyMock + JaCoCo
+│  ├─ web-selenium/           TestNG + Selenium (Page Object Model) + Grid
+│  ├─ web-playwright/         TestNG + Playwright (đối chứng 5 TC)
+│  └─ mobile-appium/          TestNG + Appium
+├─ ci/
+│  ├─ Jenkinsfile
+│  └─ workflows/ci.yml        (copy sang .github/workflows/ ở root repo)
+├─ selenium-ide/              *.side đã record
+└─ video/                     script quay + bản dựng
+```
+
+**Pattern áp dụng:** Page Object Model + `BaseTest` (setup/teardown, chụp màn hình khi fail) + data-driven (`@ParameterizedTest` cho JUnit, `@DataProvider` cho TestNG) + `config.properties` (browser, baseUrl, headless, gridUrl).
+
+### 6.1 `unit-tests` – JUnit 5 (ôn W8, W10, W11)
+
+1. Copy `Calculator`, `Rational`, `Illegal`, `BankAccount` từ bài cũ vào module.
+2. Viết test minh họa **đầy đủ annotation** (đề bài yêu cầu giải thích ý nghĩa từng annotation):
+   - `@Test`, `@DisplayName`, `@BeforeEach/@AfterEach`, `@BeforeAll/@AfterAll`
+   - `@ParameterizedTest` + `@ValueSource` / `@CsvSource` / `@MethodSource` → data-driven cho BVA
+   - `@RepeatedTest`, `@Disabled`, `@Tag("smoke")`, `@Nested`, `@Order`
+   - `assertThrows` (chia 0 → `ArithmeticException`; mẫu số 0 → `Illegal`), `assertAll`, `assertTimeout`
+   - Kiểm tra cả **equals và notEquals** đúng yêu cầu Bài 8.
+3. **Mock bằng EasyMock** (thư viện nêu trong đề W10): giả lập phụ thuộc của `BankAccount` (ví dụ `TransactionLogger`) → `createMock` / `expect().andReturn()` / `replay` / `verify`.
+4. **Demo TDD đúng quy trình Bài 11**: viết test trước → chạy **fail (đỏ)** → hiện thực hàm → chạy **pass (xanh)** → refactor. Quay đúng 3 nhịp này.
+5. Bật **JaCoCo** → xuất báo cáo coverage, đối chiếu với số test case tính từ Cyclomatic ở mục 5.3.
+
+### 6.2 `web-selenium` – TestNG + Selenium (nối tiếp W12)
+
+1. Cấu trúc:
+
+   ```text
+   pages/   LoginPage, InventoryPage, CartPage, CheckoutPage
+   tests/   LoginTest, CartTest, CheckoutTest, E2ETest
+   base/    BaseTest, WebDriverFactory (local | grid), ScreenshotUtil
+   utils/   ConfigReader, TestDataProvider
+   ```
+
+2. Nội dung bắt buộc trình bày:
+   - **Locator**: `By.id / name / className / cssSelector / xpath` + ưu nhược điểm.
+   - **Wait**: implicit vs **explicit** `WebDriverWait` + `ExpectedConditions`; lưu ý API 4.x dùng `Duration.ofSeconds` (khác W12 dùng `int`).
+   - **Tương tác**: `sendKeys`, `click`, `Select` dropdown, alert, iframe, `Actions` (hover / drag-drop), upload file, `TakesScreenshot`.
+3. **Khai thác đúng thế mạnh TestNG**:
+   - `testng.xml` chia `<suite>` / `<test>` / `<groups>` = smoke, regression
+   - `@DataProvider` đọc dữ liệu login từ CSV/Excel
+   - `priority`, `dependsOnMethods`, `@BeforeSuite/@AfterSuite`
+   - **Chạy song song** `parallel="methods" thread-count="3"` → đo và so sánh thời gian
+   - `IRetryAnalyzer` retry test flaky → giải thích khái niệm flaky test.
+4. **Selenium IDE**: record 1 kịch bản trên OpenCart → play → export **JUnit Java code** → so sánh với code POM viết tay ⇒ kết luận: IDE hợp tạo nháp nhanh, POM hợp bảo trì lâu dài.
+5. **Selenium Grid**: chạy Grid standalone → `RemoteWebDriver` + `ChromeOptions`/`FirefoxOptions` → chạy suite song song trên 2 browser → chiếu Grid UI, đối chiếu thời gian tuần tự vs song song.
+
+### 6.3 `web-playwright` – Playwright (đối chứng)
+
+1. Viết lại **đúng 5 test case** đã làm bằng Selenium (login hợp lệ, login sai, thêm giỏ, xóa giỏ, checkout) — cùng SUT, cùng dữ liệu.
+2. Demo thế mạnh riêng: auto-wait, `getByRole` / `getByText`, **trace viewer** (`show-trace`), video recording, `context.storageState()` tái dùng session login, chạy chromium/firefox/webkit chỉ bằng 1 config.
+3. Lập **bảng so sánh định lượng** Selenium vs Playwright: số dòng code cho cùng 1 TC, thời gian chạy 5 TC, số lần phải thêm wait thủ công, khả năng debug, độ trưởng thành hệ sinh thái, hỗ trợ mobile web.
+
+### 6.4 `mobile-appium` – Appium
+
+1. Khởi động Android Emulator + `appium` server.
+2. Cấu hình `UiAutomator2Options` (deviceName, platformVersion, app path).
+3. 3 test case: mở app → điều hướng menu → nhập liệu & kiểm tra text; dùng **Appium Inspector** lấy locator (quay lại thao tác này).
+4. **Mức ưu tiên thấp nhất**: nếu đến 12:00 ngày 22/08 chưa xong thì cắt, thay bằng 2 phút giải thích kiến trúc Appium + ảnh chụp Inspector.
+
+---
+
+## 7. GIAI ĐOẠN 5 – CI/CD & BÁO CÁO
+
+### 7.1 Allure – điểm hội tụ của cả 4 tầng test
+
+1. Thêm `allure-junit5` (module unit) + `allure-testng` (3 module UI/mobile) + `aspectjweaver`, cấu hình `argLine` cho `maven-surefire-plugin`.
+2. Annotate: `@Epic`, `@Feature`, `@Story`, `@Severity`, `@Description`, `@Step`, và `@Issue`/`@Link` **trỏ về Jira key** (qua `allure.link.issue.pattern`) ⇒ từ report bấm thẳng sang Jira — minh chứng rõ nhất cho "kết hợp tool".
+3. Đính kèm screenshot + page source khi fail bằng `Allure.addAttachment`.
+4. `mvn clean test` → `allure serve` → chiếu Overview, Suites (thấy đủ 4 tầng trong 1 report), Graphs, Timeline, Retries, History trend.
+
+### 7.2 GitHub Actions – cổng kiểm tra nhanh mỗi PR
+
+- `.github/workflows/ci.yml`: `ubuntu-latest`, setup JDK 17, cache Maven, chạy `mvn -B test -pl unit-tests` + suite `smoke` headless.
+- Bật **branch protection**: PR phải xanh mới được merge → minh họa "shift-left testing".
+- Upload artifact `allure-results`, gắn **badge build** vào `README.md`.
+
+### 7.3 Jenkins – dây chuyền chính
+
+- **Pipeline job** đọc `ci/Jenkinsfile` từ GitHub, các stage:
+  `Checkout → Build → Unit Test (JUnit + JaCoCo) → Selenium Test (qua Grid) → Playwright Test → Appium Test → Allure Report → Archive`
+- Cấu hình **Allure Jenkins Plugin** (Manage Jenkins → Tools → Allure Commandline) + post `allure results: [[path: 'target/allure-results']]`.
+- Bật **Poll SCM**/webhook: push code → Jenkins tự build → report tự cập nhật.
+- **Kịch bản chốt của seminar (quay liền mạch, không cắt):** cố tình sửa 1 assertion sai → push → Actions đỏ chặn PR → xem Allure trên Jenkins tìm nguyên nhân → tạo **Bug** trên Jira → fix nhánh `bugfix/KTPM-xx` → PR → Actions xanh → merge → Jenkins build SUCCESS → Allure history trend hồi phục → đóng Bug trên Jira. **Đúng một vòng khép kín đi qua cả 9 tool.**
+
+### 7.4 Báo cáo kết quả (`docs/Report.md`)
+
+- Bảng tổng hợp: tổng TC, pass/fail/skip theo từng tầng, tỉ lệ tự động hóa, coverage JaCoCo, thời gian chạy tuần tự vs song song.
+- **Bảng so sánh tool**: JUnit vs TestNG, Selenium vs Playwright, Jenkins vs GitHub Actions, Maven vs Ant (tái dùng câu trả lời Bài 11) — kèm khuyến nghị "nên dùng cái nào trong hoàn cảnh nào".
+- **Defect log**: ID, mô tả, mức nghiêm trọng, bước tái hiện, trạng thái, Jira key (lỗi thật đã ghi nhận: DEF-01 — suite UI sập khi chạy song song 3 luồng).
+- Bài học rút ra – hạn chế – hướng mở rộng.
+
+---
+
+## 8. PHÂN CÔNG (2 thành viên)
+
+| Hạng mục | Thành viên A | Thành viên B |
+| --- | --- | --- |
+| Cài đặt | JDK, Maven, NetBeans, Selenium + IDE + Grid, Jenkins | Node, Playwright, Appium, Allure, Jira, GitHub Actions |
+| Thiết kế TC | Hộp trắng (flow graph, cyclomatic, coverage) + unit TC | Hộp đen (EP, BVA, bảng quyết định, sơ đồ trạng thái) + web/mobile TC |
+| Code | `unit-tests` (JUnit 5, EasyMock, JaCoCo), `web-selenium` (TestNG, POM, Grid) | `web-playwright`, `mobile-appium`, Selenium IDE |
+| Tool quản lý | Jenkins + `Jenkinsfile` | Jira board + GitHub Actions + cấu hình Allure |
+| Tài liệu | TestPlan, Report, TraceabilityMatrix | Setup-Guide, TestCases, TestDesign-Techniques |
+| Video | Quay phần 1, 3, 6, 7 | Quay phần 2, 4, 5, 8, 9 |
+| Chung | Review chéo PR, dựng video, tổng duyệt | |
+
+Quy tắc: mỗi người 1 nhánh riêng, mọi thay đổi qua PR, người còn lại approve; họp nhanh 15 phút mỗi tối cập nhật board Jira.
+
+---
+
+## 9. LỊCH TRÌNH CHI TIẾT (16/08 → 22/08/2026)
+
+| Ngày | Nội dung | Đầu ra kiểm chứng được |
+| --- | --- | --- |
+| **D1 – 16/08 (CN)** | Chốt sơ đồ dây chuyền (mục 1); tạo repo GitHub + Jira project; thêm Maven vào `PATH`; dựng khung Maven 4 module | Repo có commit đầu, `mvn -v` chạy được, Jira board tồn tại |
+| **D2 – 17/08** | Cài trọn bộ 9 tool, chụp ảnh từng bước; **tải trước browser của Playwright + Emulator**; viết `Setup-Guide.md` | `docs/images/` đủ ảnh; Jenkins, Grid, Appium chạy được |
+| **D3 – 18/08** | Thiết kế test case: EP, BVA, bảng quyết định, sơ đồ trạng thái, flow graph + cyclomatic; nhập toàn bộ TC lên Jira | `TestCases.md`, `TestDesign-Techniques.md`, ≥ 35 issue Jira |
+| **D4 – 19/08** | Code `unit-tests`: JUnit 5 đủ annotation, EasyMock, TDD đỏ→xanh, JaCoCo. Song song: dựng `.github/workflows/ci.yml` | `mvn test` xanh, coverage ≥ 80%, badge CI xanh |
+| **D5 – 20/08** | Code `web-selenium`: POM, 15 TC, `testng.xml` groups + parallel + retry, data-driven, screenshot khi fail; record Selenium IDE; chạy qua Grid | Suite Selenium pass, ảnh Grid UI, file `.side` |
+| **D6 – 21/08** | Code `web-playwright` (5 TC đối chứng + bảng so sánh); `mobile-appium` 3 TC; tích hợp Allure cho cả 4 module | Allure gộp đủ 4 tầng trong 1 report |
+| **D7 – 22/08** | *(Sáng)* `Jenkinsfile` + pipeline đủ stage, diễn tập kịch bản FAIL → Bug → fix → SUCCESS. *(Chiều)* `Report.md` + RTM, **quay + dựng video**, tổng duyệt, nộp | Jenkins có build FAIL và SUCCESS, video hoàn chỉnh, tag `v1.0`, nộp trước 22:00 |
+
+**Nguyên tắc cắt giảm khi trễ tiến độ** (theo thứ tự hy sinh): ① Appium → ② phần Grid đa browser (giữ 1 browser) → ③ giảm Playwright từ 5 TC còn 2 TC. **Tuyệt đối không cắt**: phần thiết kế test case (mục 5) và kịch bản khép kín Jira–GitHub–Jenkins–Allure (mục 7.3) — đây là hai phần chấm điểm nặng nhất.
+
+---
+
+## 10. KỊCH BẢN VIDEO (mục tiêu 22–25 phút)
+
+| # | Thời lượng | Nội dung | Người trình bày |
+| --- | --- | --- | --- |
+| 1 | 1'30 | Giới thiệu nhóm, đề tài, **chiếu sơ đồ dây chuyền mục 1** và vai trò từng tool | A |
+| 2 | 1'30 | SUT + Test Plan + phạm vi | B |
+| 3 | 3' | **Cài đặt** step-by-step (tua nhanh, voice-over) | A |
+| 4 | 4' | **Lập test case**: EP, BVA, bảng quyết định, sơ đồ trạng thái, flow graph + cyclomatic | B |
+| 5 | 2' | **Jira**: tạo TC, priority, assign, sprint, burndown, development panel liên kết GitHub | B |
+| 6 | 3' | **JUnit 5 + EasyMock + JaCoCo**: annotation, `@ParameterizedTest`, TDD đỏ→xanh, coverage | A |
+| 7 | 4' | **TestNG + Selenium**: IDE record → POM code → `testng.xml` groups/parallel/retry → Grid 2 browser | A |
+| 8 | 2'30 | **Playwright**: chạy lại 5 TC, trace viewer, **bảng so sánh với Selenium** | B |
+| 9 | 1'30 | **Appium**: Inspector + 3 TC trên Emulator | B |
+| 10 | 3' | **Vòng khép kín**: push lỗi → Actions đỏ → Jenkins + Allure chẩn đoán → Bug Jira → fix → xanh → đóng Bug | A + B |
+| 11 | 1'30 | Kết quả tổng hợp, bảng so sánh tool, bài học, hạn chế | A + B |
+
+**Chuẩn bị quay:** OBS Studio 1920×1080; phóng to font IDE/terminal; tắt thông báo; viết sẵn lời thoại; **chạy thử toàn bộ demo 1 lần trước khi quay**; chuẩn bị clip dự phòng cho các bước dễ hỏng (Grid, Emulator, Jenkins).
+
+---
+
+## 11. RỦI RO & PHƯƠNG ÁN DỰ PHÒNG
+
+| Rủi ro | Ảnh hưởng | Phòng ngừa / Xử lý |
+| --- | --- | --- |
+| Ôm 9 tool → làm rộng mà nông | Mất điểm chiều sâu | Mỗi tool bám đúng **một mắt xích** ở mục 1; ưu tiên chiều sâu ở mục 5 và 7.3; tuân thủ thứ tự cắt giảm ở mục 9 |
+| SUT hỏng hoặc đổi giao diện giữa chừng | Test fail lúc quay | SUT do nhóm tự quản lý, chạy offline; luôn chạy thử toàn bộ trước khi quay và giữ clip dự phòng |
+| ChromeDriver lệch phiên bản Chrome | Selenium không chạy | Dùng Selenium 4.6+ (Selenium Manager tự quản driver) |
+| Playwright tải browser chậm/lỗi mạng | Kẹt D6 | Tải sẵn từ D2, cache `~/.cache/ms-playwright` |
+| Appium/Emulator ngốn RAM & thời gian | Trễ tiến độ | Ưu tiên thấp nhất, cắt cứng 12:00 ngày 22/08 |
+| Jenkins chạy UI test không có GUI | CI fail | Chạy headless (`--headless=new`) hoặc trỏ về Selenium Grid |
+| Jenkins chỉ chạy local, giám khảo không xem được | Khó kiểm chứng | Quay đầy đủ màn hình + đính kèm `allure generate --single-file` vào repo + link Allure trên GitHub Pages |
+| Làm dồn ngày cuối | Không kịp deadline | Bám lịch D1–D7, chốt board Jira mỗi tối; D7 chỉ còn quay dựng, không code mới |
+
+---
+
+## 12. CHECKLIST NỘP BÀI (rà trước 22/08)
+
+- [ ] Video đủ 11 mục ở phần 10, có tiếng nói của **cả 2 thành viên**
+- [ ] Video mở đầu bằng **sơ đồ dây chuyền kết hợp tool** và kết thúc bằng **vòng khép kín** (mục 7.3)
+- [ ] Đủ 9 tool xuất hiện và **được nói rõ vai trò riêng**: Jira, GitHub, GitHub Actions, Jenkins, JUnit 5, TestNG, Selenium (IDE/WebDriver/Grid), Playwright, Appium, Allure
+- [ ] Repo GitHub public: README có mô tả kiến trúc, hướng dẫn chạy, badge CI, link Allure
+- [ ] `mvn clean test` chạy được từ máy sạch (đã kiểm chứng qua GitHub Actions)
+- [ ] Đủ tài liệu `docs/`: TestPlan, TestCases, TestDesign-Techniques, Setup-Guide, TraceabilityMatrix, Report
+- [ ] Jira board có dữ liệu thật: ≥ 35 test case, có Bug, có sprint/burndown, có link GitHub
+- [ ] Allure report gộp đủ 4 tầng test + có history trend (≥ 3 build)
+- [ ] Jenkins có ≥ 1 build FAIL và ≥ 1 build SUCCESS minh họa vòng đời defect
+- [ ] Thể hiện rõ **5 kỹ thuật đã học**: EP, BVA, bảng quyết định, sơ đồ chuyển trạng thái, phủ mã lệnh
+- [ ] Tag `v1.0`, nộp trên mLearning trước **00:00:00 ngày 23/08/2026**
+
+---
+
+## 13. TIÊU CHÍ TỰ CHẤM (thang 10)
+
+| Tiêu chí | Điểm | Ghi chú |
+| --- | --- | --- |
+| Cài đặt trình bày step-by-step, rõ ràng | 1.5 | Có ảnh/clip từng bước cho cả 9 tool |
+| Ví dụ minh họa từ đơn giản → phức tạp | 1.5 | Unit → Web (Selenium, Playwright) → Mobile |
+| Lập test case đúng kỹ thuật đã học | 2.0 | 5 kỹ thuật, có lập luận số lượng TC |
+| Demo chạy thật, không lỗi | 2.0 | Pass/fail đều được giải thích |
+| Quản lý test case (Jira + GitHub) | 1.5 | Tiến độ, giao việc, ưu tiên, truy vết |
+| **Mức độ kết hợp các tool thành dây chuyền khép kín** | 1.0 | Trọng tâm của đề — mục 1 và 7.3 |
+| Trình bày, chất lượng video, phối hợp nhóm | 0.5 | |
+
+---
+
+**Bước kế tiếp ngay sau khi plan được duyệt (D1):** tạo repo GitHub + Jira project → thêm Maven vào `PATH` → dựng khung `automation/` gồm 4 module (`unit-tests`, `web-selenium`, `web-playwright`, `mobile-appium`) → commit đầu tiên gắn mã Jira.

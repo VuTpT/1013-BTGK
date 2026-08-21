@@ -1,0 +1,87 @@
+/*
+ * Day chuyen CI chinh cua seminar - chay tren Jenkins cai tai may nhom.
+ *
+ * Ban rut gon v2: du an chi con MOT module Maven nen pipeline cung gon lai con 4 stage.
+ * Vai tro: chay day du moi tang test (ke ca tang can browser that) va publish Allure.
+ * Cong kiem tra nhanh cho moi Pull Request do GitHub Actions dam nhiem (ci/workflows/ci.yml).
+ *
+ * Yeu cau cau hinh san trong Jenkins:
+ *   - Tools: JDK 17 (ten "jdk17"), Maven 3.9 (ten "maven3"), Allure Commandline (ten "allure")
+ *   - Plugin: Git, Pipeline, Maven Integration, JUnit, Allure Jenkins Plugin
+ */
+pipeline {
+    agent any
+
+    tools {
+        jdk 'jdk17'
+        maven 'maven3'
+    }
+
+    options {
+        timestamps()
+        buildDiscarder(logRotator(numToKeepStr: '20'))
+        timeout(time: 30, unit: 'MINUTES')
+    }
+
+    parameters {
+        booleanParam(name: 'RUN_MOBILE', defaultValue: false, description: 'Chay them tang Appium (can Emulator)')
+    }
+
+    environment {
+        MAVEN_OPTS = '-Dfile.encoding=UTF-8'
+        WORKDIR = 'BTCK'
+    }
+
+    stages {
+
+        stage('Checkout') {
+            steps {
+                checkout scm
+            }
+        }
+
+        stage('Build') {
+            steps {
+                dir(env.WORKDIR) {
+                    sh 'mvn -B clean compile'
+                }
+            }
+        }
+
+        stage('Test - ca 3 tang chay duoc tren CI') {
+            steps {
+                dir(env.WORKDIR) {
+                    script {
+                        // Mot lenh duy nhat chay: unit (JUnit 5) + web (TestNG/Selenium) + Playwright
+                        def mobileArg = params.RUN_MOBILE ? '-Dmobile.tests=true' : ''
+                        sh "mvn -B test -Dheadless=true ${mobileArg}"
+                    }
+                }
+            }
+            post {
+                always {
+                    junit allowEmptyResults: true, testResults: 'BTCK/target/surefire-reports/*.xml'
+                    archiveArtifacts artifacts: 'BTCK/target/traces/*.zip', allowEmptyArchive: true
+                    publishHTML(target: [
+                            reportDir : 'BTCK/target/site/jacoco',
+                            reportFiles: 'index.html',
+                            reportName: 'JaCoCo Coverage',
+                            keepAll   : true, alwaysLinkToLastBuild: true, allowMissing: true
+                    ])
+                }
+            }
+        }
+    }
+
+    post {
+        always {
+            // Ca 4 tang test ghi chung vao MOT thu muc allure-results duy nhat
+            allure includeProperties: false,
+                    jdk: '',
+                    results: [[path: 'BTCK/target/allure-results']]
+        }
+        failure {
+            echo 'Build FAIL -> tao issue Bug tren Jira, gan link build nay vao phan mo ta.'
+        }
+    }
+}

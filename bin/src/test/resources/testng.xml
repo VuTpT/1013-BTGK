@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE suite SYSTEM "https://testng.org/testng-1.0.dtd">
+
+<!--
+    Suite UI cua MiniShop - ban rut gon v2: chay TUAN TU, khong retry.
+
+    Cach chay:
+      - Trong Eclipse : chuot phai file nay -> Run As -> TestNG Suite
+      - Bang Maven    : mvn test        (testng-engine tu nhan dien cac lop TestNG)
+
+    Ghi chu: ban v1 dung parallel="classes" thread-count="2". Da bo o v2 vi day chinh la
+    nguyen nhan cua loi DEF-01 (xem docs/Report.md) va vi chay tuan tu de quan sat khi quay video.
+-->
+<suite name="MiniShop Web UI Suite" verbose="1">
+
+    <listeners>
+        <listener class-name="io.qameta.allure.testng.AllureTestNg"/>
+    </listeners>
+
+    <test name="Kiem thu giao dien MiniShop">
+        <classes>
+            <class name="vn.edu.ktpm.minishop.web.tests.LoginTest"/>
+            <class name="vn.edu.ktpm.minishop.web.tests.CartTest"/>
+            <class name="vn.edu.ktpm.minishop.web.tests.CheckoutTest"/>
+            <class name="vn.edu.ktpm.minishop.web.tests.E2ETest"/>
+        </classes>
+    </test>
+</suite>
