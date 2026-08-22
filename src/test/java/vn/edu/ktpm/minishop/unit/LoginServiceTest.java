@@ -3,6 +3,7 @@ package vn.edu.ktpm.minishop.unit;
 import vn.edu.ktpm.minishop.auth.*;
 
 import io.qameta.allure.Epic;
+import io.qameta.allure.TmsLink;
 import io.qameta.allure.Feature;
 import io.qameta.allure.Severity;
 import io.qameta.allure.SeverityLevel;
@@ -58,6 +59,7 @@ class LoginServiceTest {
 
     @Test
     @DisplayName("TC-UNIT-030 [CHUA_DANG_NHAP -> DA_DANG_NHAP] Dang nhap dung")
+    @TmsLink("KTPM-101")
     @Tag("smoke")
     @Severity(SeverityLevel.BLOCKER)
     void loginSuccess() {
@@ -74,6 +76,7 @@ class LoginServiceTest {
     @ParameterizedTest(name = "TC-UNIT-031.{index}: sai lan {0} -> con {1} luot")
     @CsvSource({"1, 2", "2, 1"})
     @DisplayName("TC-UNIT-031 [CHUA_DANG_NHAP -> CHUA_DANG_NHAP] Sai duoi 3 lan, van cho nhap lai")
+    @TmsLink("KTPM-102")
     void wrongPasswordUnderThreshold(int attemptNo, int expectedRemaining) {
         User user = existingUser(attemptNo - 1);
         expect(repository.findByUsername(USERNAME)).andReturn(user);
@@ -91,6 +94,7 @@ class LoginServiceTest {
 
     @Test
     @DisplayName("TC-UNIT-032 [CHUA_DANG_NHAP -> KHOA_TAM] Sai du 3 lan -> khoa 15 phut")
+    @TmsLink("KTPM-103")
     @Severity(SeverityLevel.CRITICAL)
     void lockAfterThirdFailure() {
         User user = existingUser(2);
@@ -109,6 +113,7 @@ class LoginServiceTest {
 
     @Test
     @DisplayName("TC-UNIT-033 [KHOA_TAM] Dang bi khoa, nhap DUNG mat khau van bi tu choi")
+    @TmsLink("KTPM-105")
     void correctPasswordWhileLocked() {
         User user = existingUser(3);
         user.setLockedUntil(clock.instant().plusSeconds(15 * 60));
@@ -124,6 +129,7 @@ class LoginServiceTest {
 
     @Test
     @DisplayName("TC-UNIT-035 [KHOA_TAM -> CHUA_DANG_NHAP] Du 15 phut -> tu dong mo khoa, reset bo dem")
+    @TmsLink("KTPM-104")
     @Severity(SeverityLevel.CRITICAL)
     void autoUnlockAfterLockPeriod() {
         User user = existingUser(3);
@@ -144,6 +150,7 @@ class LoginServiceTest {
 
     @Test
     @DisplayName("TC-UNIT-037 Tai khoan khong ton tai -> INVALID_CREDENTIAL, khong lo thong tin")
+    @TmsLink("KTPM-107")
     void unknownUser() {
         expect(repository.findByUsername("khong_ton_tai")).andReturn(null);
         replay(repository);

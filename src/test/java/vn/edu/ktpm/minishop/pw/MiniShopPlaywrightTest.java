@@ -6,6 +6,7 @@ import com.microsoft.playwright.Page;
 import com.microsoft.playwright.Playwright;
 import com.microsoft.playwright.Tracing;
 import io.qameta.allure.Epic;
+import io.qameta.allure.TmsLink;
 import io.qameta.allure.Feature;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
@@ -116,6 +117,7 @@ class MiniShopPlaywrightTest {
     // ------------------------------------------------------------------ test case
     @Test
     @DisplayName("TC-PW-001 (= TC-WEB-001) Dang nhap hop le")
+    @TmsLink("KTPM-101")
     void tcPw001_loginValid() {
         login("standard_user", "secret_sauce");
 
@@ -125,6 +127,9 @@ class MiniShopPlaywrightTest {
 
     @Test
     @DisplayName("TC-PW-002 (= TC-WEB-005) Sai 3 lan lien tiep -> khoa tai khoan")
+    @TmsLink("KTPM-102")
+    @TmsLink("KTPM-103")
+    @TmsLink("KTPM-105")
     void tcPw002_lockAfterThreeFailures() {
         login("standard_user", "sai1");
         assertTrue(page.textContent("[data-testid='login-error']").contains("2 lần thử"));
@@ -141,6 +146,7 @@ class MiniShopPlaywrightTest {
 
     @Test
     @DisplayName("TC-PW-003 (= TC-WEB-010) Them san pham vao gio")
+    @TmsLink("KTPM-112")
     void tcPw003_addToCart() {
         login("standard_user", "secret_sauce");
         addToCart("P01", 2);

@@ -3,6 +3,7 @@ package vn.edu.ktpm.minishop.unit;
 import vn.edu.ktpm.minishop.shop.*;
 
 import io.qameta.allure.Epic;
+import io.qameta.allure.TmsLink;
 import io.qameta.allure.Feature;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -33,6 +34,7 @@ class CheckoutServiceTest {
 
     @Test
     @DisplayName("TC-UNIT-075 Dat hang thanh cong -> tra ve ma don va xoa sach gio")
+    @TmsLink("KTPM-134")
     void placeOrderSuccess() {
         cart.add(Catalog.byCode("P03"), 1);   // 500.000
         String orderId = service.placeOrder(cart, false, null, "Nguyen Van A", "0912345678", "Ha Noi");
@@ -45,6 +47,7 @@ class CheckoutServiceTest {
 
     @Test
     @DisplayName("TC-UNIT-077 Thong tin sai -> nem CartException, gio hang KHONG bi xoa")
+    @TmsLink("KTPM-134")
     void placeOrderInvalidInfoKeepsCart() {
         cart.add(Catalog.byCode("P01"), 2);
 

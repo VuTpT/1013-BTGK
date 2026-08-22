@@ -71,6 +71,11 @@ docs.zip
 *.zip
 *.7z
 *.rar
+*.tgz
+*.tar.gz
+
+# Allure CLI tai ve luc chay CI (giai nen ngay tai goc repo)
+allure-2.*/
 
 # ------------------------------------------------------------------ Eclipse
 .classpath

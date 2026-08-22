@@ -1,8 +1,8 @@
 package vn.edu.ktpm.minishop.web.tests;
 
 import io.qameta.allure.Epic;
+import io.qameta.allure.TmsLink;
 import io.qameta.allure.Feature;
-import io.qameta.allure.Issue;
 import io.qameta.allure.Severity;
 import io.qameta.allure.SeverityLevel;
 import org.testng.annotations.DataProvider;
@@ -51,9 +51,9 @@ public class LoginTest extends BaseTest {
         return rows.toArray(new Object[0][]);
     }
 
+    @TmsLink("KTPM-101")
     @Test(groups = {"smoke"}, priority = 1, description = "TC-WEB-001 Dang nhap voi tai khoan hop le")
     @Severity(SeverityLevel.BLOCKER)
-    @Issue("KTPM-101")
     public void tcWeb001_loginWithValidAccount() {
         ProductsPage products = new LoginPage(driver).loginAs("standard_user", "secret_sauce");
 
@@ -62,6 +62,8 @@ public class LoginTest extends BaseTest {
         assertEquals(products.cartCount(), 0, "Gio hang moi phai rong");
     }
 
+    @TmsLink("KTPM-106")
+    @TmsLink("KTPM-107")
     @Test(dataProvider = "invalidLogins", groups = {"regression"}, priority = 2,
             description = "TC-WEB-002 Dang nhap khong hop le (data-driven tu CSV)")
     @Severity(SeverityLevel.CRITICAL)
@@ -77,6 +79,7 @@ public class LoginTest extends BaseTest {
 
 
 
+    @TmsLink("KTPM-140")
     @Test(groups = {"smoke"}, priority = 3, description = "TC-WEB-006 Dang xuat quay ve trang dang nhap")
     public void tcWeb006_logout() {
         LoginPage login = new LoginPage(driver)

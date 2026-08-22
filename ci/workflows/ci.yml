@@ -1,4 +1,4 @@
-# Cổng kiểm tra nhanh cho mỗi Pull Request.
+# Cổng kiểm tra nhanh cho mỗi Pull Request + publish Allure và báo ngược về Jira.
 #
 # LƯU Ý VỀ ĐƯỜNG DẪN: gốc của repo Git CHÍNH LÀ thư mục BTCK (pom.xml nằm ngay
 # root), nên mọi đường dẫn ở đây tính từ root - KHÔNG thêm tiền tố "BTCK/".
@@ -8,7 +8,13 @@
 #     protection để PR đỏ thì không merge được (shift-left testing).
 #   - Jenkins (ci/Jenkinsfile): NẶNG - chạy đầy đủ Selenium/Playwright/Appium + publish Allure.
 #
-# Bản rút gọn v2: dự án chỉ còn MỘT module Maven nên workflow cũng chỉ còn một job.
+# CẦN CẤU HÌNH SẴN (xem docs/Setup-Guide.md):
+#   - Settings > Pages > Source = "Deploy from a branch" > nhánh gh-pages, thư mục /
+#   - Settings > Secrets and variables > Actions > Secrets:
+#       JIRA_BASE_URL   vd https://sinhvien-team-xej6z3t8.atlassian.net
+#       JIRA_EMAIL      email tài khoản Atlassian
+#       JIRA_API_TOKEN  tạo tại id.atlassian.com/manage-profile/security/api-tokens
+#   - (tuỳ chọn) Variables: JIRA_LAUNCH_ISSUE - issue nhận bình luận tổng kết, mặc định KTPM-1
 
 name: CI - MiniShop Automation
 
@@ -18,6 +24,13 @@ on:
   pull_request:
     branches: [ main ]
   workflow_dispatch:
+
+# Cần quyền ghi để đẩy báo cáo lên nhánh gh-pages
+permissions:
+  contents: write
+
+env:
+  ALLURE_VERSION: '2.45.0'
 
 jobs:
   unit-tests:
@@ -46,3 +59,81 @@ jobs:
             target/allure-results
             target/surefire-reports
             target/site/jacoco
+
+      # ---------------------------------------------------------------------
+      # Từ đây trở xuống dùng if: always() để vẫn chạy khi test đỏ - vì lúc test
+      # đỏ mới là lúc cần báo cáo và cần Jira biết nhất.
+      # ---------------------------------------------------------------------
+
+      # Kéo lịch sử lần chạy trước về để Allure vẽ được biểu đồ xu hướng.
+      # Lần chạy đầu chưa có nhánh gh-pages -> bỏ qua, không coi là lỗi.
+      - name: Lấy lịch sử Allure của các lần trước
+        if: always()
+        continue-on-error: true
+        uses: actions/checkout@v4
+        with:
+          ref: gh-pages
+          path: gh-pages
+
+      - name: Sinh báo cáo Allure HTML
+        if: always()
+        run: |
+          set -e
+          OWNER=$(echo "${{ github.repository_owner }}" | tr 'A-Z' 'a-z')
+          REPO="${{ github.event.repository.name }}"
+          PAGES_URL="https://$OWNER.github.io/$REPO/"
+
+          # executor.json giúp Allure hiện tên build và link ngược về CI
+          cat > target/allure-results/executor.json <<JSON
+          {
+            "name": "GitHub Actions",
+            "type": "github",
+            "reportName": "MiniShop Automation - unit",
+            "buildOrder": ${{ github.run_number }},
+            "buildName": "CI #${{ github.run_number }}",
+            "buildUrl": "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}",
+            "reportUrl": "$PAGES_URL"
+          }
+          JSON
+
+          if [ -d gh-pages/history ]; then
+            cp -r gh-pages/history target/allure-results/
+            echo "Da phuc hoi lich su tu nhanh gh-pages"
+          fi
+
+          curl -sSL -o allure.tgz \
+            "https://github.com/allure-framework/allure2/releases/download/${ALLURE_VERSION}/allure-${ALLURE_VERSION}.tgz"
+          tar -xzf allure.tgz
+          "./allure-${ALLURE_VERSION}/bin/allure" generate target/allure-results --clean -o allure-report
+          echo "PAGES_URL=$PAGES_URL" >> "$GITHUB_ENV"
+
+      # PR từ fork không có quyền ghi -> chỉ publish khi push vào main hoặc chạy tay
+      - name: Publish báo cáo lên GitHub Pages
+        if: always() && github.event_name != 'pull_request'
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./allure-report
+          publish_branch: gh-pages
+
+      # Bình luận tổng kết vào issue đầu mối; test nào hỏng thì bình luận thẳng
+      # vào đúng issue KTPM mà test đó gắn bằng @TmsLink.
+      - name: Báo kết quả ngược về Jira
+        if: always() && github.event_name != 'pull_request'
+        continue-on-error: true
+        env:
+          JIRA_BASE_URL: ${{ secrets.JIRA_BASE_URL }}
+          JIRA_EMAIL: ${{ secrets.JIRA_EMAIL }}
+          JIRA_API_TOKEN: ${{ secrets.JIRA_API_TOKEN }}
+        run: |
+          python3 ci/notify-jira.py \
+            --results target/allure-results \
+            --report-url "$PAGES_URL" \
+            --launch-issue "${{ vars.JIRA_LAUNCH_ISSUE || 'KTPM-1' }}" \
+            --build "CI #${{ github.run_number }}" \
+            --build-url "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+
+      - name: Tóm tắt trên trang build
+        if: always() && github.event_name != 'pull_request'
+        run: |
+          echo "Báo cáo Allure: $PAGES_URL" >> "$GITHUB_STEP_SUMMARY"

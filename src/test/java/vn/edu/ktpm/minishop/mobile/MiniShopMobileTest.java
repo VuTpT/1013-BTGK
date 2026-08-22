@@ -3,6 +3,7 @@ package vn.edu.ktpm.minishop.mobile;
 import io.appium.java_client.android.AndroidDriver;
 import io.appium.java_client.android.options.UiAutomator2Options;
 import io.qameta.allure.Epic;
+import io.qameta.allure.TmsLink;
 import io.qameta.allure.Feature;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
@@ -87,6 +88,7 @@ class MiniShopMobileTest {
     @Test
     @Order(1)
     @DisplayName("TC-MOB-001 Dang nhap tren thiet bi di dong")
+    @TmsLink("KTPM-101")
     void tcMob001_login() {
         driver.findElement(testId("username")).sendKeys("standard_user");
         driver.findElement(testId("password")).sendKeys("secret_sauce");
@@ -98,6 +100,7 @@ class MiniShopMobileTest {
     @Test
     @Order(2)
     @DisplayName("TC-MOB-002 Them san pham vao gio tren thiet bi di dong")
+    @TmsLink("KTPM-112")
     void tcMob002_addToCart() {
         driver.findElement(testId("add-P01")).click();
         assertEquals("1", driver.findElement(testId("cart-count")).getText());

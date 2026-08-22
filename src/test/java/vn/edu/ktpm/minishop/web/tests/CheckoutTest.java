@@ -1,6 +1,7 @@
 package vn.edu.ktpm.minishop.web.tests;
 
 import io.qameta.allure.Epic;
+import io.qameta.allure.TmsLink;
 import io.qameta.allure.Feature;
 import io.qameta.allure.Severity;
 import io.qameta.allure.SeverityLevel;
@@ -48,6 +49,9 @@ public class CheckoutTest extends BaseTest {
         };
     }
 
+    @TmsLink("KTPM-131")
+    @TmsLink("KTPM-132")
+    @TmsLink("KTPM-134")
     @Test(groups = {"smoke"}, priority = 1,
             description = "TC-WEB-020 Dat hang thanh cong voi thong tin hop le")
     @Severity(SeverityLevel.BLOCKER)
@@ -64,6 +68,7 @@ public class CheckoutTest extends BaseTest {
         assertEquals(success.continueShopping().cartCount(), 0);
     }
 
+    @TmsLink("KTPM-130")
     @Test(dataProvider = "invalidCheckoutData", groups = {"regression"}, priority = 2,
             description = "TC-WEB-021 Thong tin giao hang khong hop le -> bao loi dung truong")
     @Severity(SeverityLevel.CRITICAL)

@@ -176,6 +176,65 @@ biểu đồ **Burndown** và **Sprint report** có dữ liệu.
 
 ---
 
+## Bước 10b — Nối Allure với Jira (hai chiều)
+
+Bước này ghép hai công cụ lại thành vòng khép kín. Code đã gắn sẵn, chỉ còn phần cấu hình.
+
+### Chiều xuôi: từ Allure bấm sang Jira
+
+Đã làm sẵn trong mã nguồn, chỉ cần kiểm tra:
+
+1. [`src/test/resources/allure.properties`](../src/test/resources/allure.properties) trỏ đúng site
+   Jira của nhóm (thay phần `<ten-site>` nếu tạo site mới).
+2. Mỗi test đã gắn `@TmsLink("KTPM-xxx")` theo ma trận truy vết mục 5.1 của
+   [TestCases.md](TestCases.md) — tổng 56 test, phủ đủ 24 mã.
+
+> Phân biệt hai annotation: `@TmsLink` dùng cho issue **loại Test** (KTPM-101…151, hiện ở mục
+> *Test cases* của report), `@Issue` dùng cho issue **loại Bug** (KTPM-191, 192, hiện ở mục
+> *Defects*). Dùng nhầm sẽ làm report hiển thị test case như một lỗi.
+
+✅ **Kiểm chứng**: `allure serve target/allure-results` → mở một test bất kỳ → mục **Links** có mã
+KTPM bấm được, mở đúng issue trên Jira.
+
+### Chiều ngược: CI đẩy kết quả về Jira
+
+1. **Bật GitHub Pages**: *Settings → Pages → Source* = **Deploy from a branch**, chọn nhánh
+   `gh-pages`, thư mục `/ (root)`. Nhánh này workflow tự tạo ở lần chạy đầu.
+2. **Tạo API token**: vào `id.atlassian.com/manage-profile/security/api-tokens` → *Create API token*
+   → copy lại (chỉ hiện một lần).
+3. **Khai secrets**: *Settings → Secrets and variables → Actions → New repository secret*:
+
+   | Tên secret | Giá trị |
+   | --- | --- |
+   | `JIRA_BASE_URL` | `https://sinhvien-team-xej6z3t8.atlassian.net` (không có dấu `/` cuối) |
+   | `JIRA_EMAIL` | email tài khoản Atlassian |
+   | `JIRA_API_TOKEN` | token vừa tạo ở bước 2 |
+
+4. *(tuỳ chọn)* Tab **Variables** → thêm `JIRA_LAUNCH_ISSUE` = mã issue nhận bình luận tổng kết.
+   Không khai thì mặc định là `KTPM-1`.
+
+Sau khi push vào `main`, workflow sẽ tự động: sinh báo cáo Allure HTML → publish lên GitHub Pages →
+bình luận vào Jira. Test nào hỏng thì [`ci/notify-jira.py`](../ci/notify-jira.py) đọc `@TmsLink` của
+test đó và bình luận thẳng vào đúng issue KTPM tương ứng.
+
+**Chạy thử tại máy trước khi push** (không gọi Jira thật):
+
+```bash
+mvn clean test
+python ci/notify-jira.py --results target/allure-results     --report-url "https://vutpt.github.io/1013-BTGK/"     --launch-issue KTPM-1 --build "thu-tai-may" --dry-run
+```
+
+Thêm `--create-bug KTPM` nếu muốn CI tự tạo issue **Bug** mỗi khi có test hỏng (đúng kịch bản cảnh 9).
+
+✅ **Kiểm chứng**: tab **Actions** xanh → mở `https://<tai-khoan>.github.io/<ten-repo>/` thấy dashboard
+Allure → mở issue `KTPM-1` trên Jira thấy bình luận mới kèm link báo cáo.
+
+> Allure bản mã nguồn mở **không** đẩy thẳng kết quả vào Jira Cloud được: plugin chính thức
+> (`ALLURE_JIRA_ENABLED`) bắt buộc app *Allure for Jira*, mà app đó chỉ có bản **Jira Server** và đã
+> ngừng hỗ trợ. Vì vậy chiều ngược ở đây đi bằng REST API v2 của Jira Cloud.
+
+---
+
 ## Bước 11 *(tùy chọn)* — Selenium IDE
 
 1. Cài extension **Selenium IDE** cho Chrome.
@@ -222,4 +281,7 @@ biểu đồ **Burndown** và **Sprint report** có dữ liệu.
 - [ ] `target/site/jacoco/index.html` có số liệu
 - [ ] Repo GitHub có Actions xanh
 - [ ] Jira board có issue và sprint
+- [ ] `allure.properties` trỏ đúng site Jira, mục **Links** trong report bấm sang Jira được
+- [ ] Đã khai 3 secret `JIRA_*` và bật GitHub Pages nhánh `gh-pages`
+- [ ] Trang `https://<tai-khoan>.github.io/<ten-repo>/` mở được báo cáo Allure
 - [ ] Đã tạo sẵn Run Configuration đặt tên rõ ràng trong Eclipse (`1-Unit test`, `2-UI test`, `3-Coverage`)

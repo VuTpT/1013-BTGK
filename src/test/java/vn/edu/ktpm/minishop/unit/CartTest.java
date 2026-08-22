@@ -3,6 +3,7 @@ package vn.edu.ktpm.minishop.unit;
 import vn.edu.ktpm.minishop.shop.*;
 
 import io.qameta.allure.Epic;
+import io.qameta.allure.TmsLink;
 import io.qameta.allure.Feature;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -36,6 +37,8 @@ class CartTest {
     @ParameterizedTest(name = "TC-UNIT-040.{index}: so luong hop le = {0}")
     @ValueSource(ints = {1, 10})
     @DisplayName("TC-UNIT-040 [BIEN HOP LE] So luong trong [1..10] duoc chap nhan")
+    @TmsLink("KTPM-110")
+    @TmsLink("KTPM-112")
     @Tag("smoke")
     void validQuantities(int quantity) {
         cart.add(Catalog.byCode("P01"), quantity);
@@ -45,6 +48,7 @@ class CartTest {
     @ParameterizedTest(name = "TC-UNIT-041.{index}: so luong khong hop le = {0}")
     @ValueSource(ints = {0, 11})
     @DisplayName("TC-UNIT-041 [BIEN KHONG HOP LE] So luong ngoai [1..10] bi tu choi, gio khong doi")
+    @TmsLink("KTPM-110")
     void invalidQuantities(int quantity) {
         CartException ex = assertThrows(CartException.class,
                 () -> cart.add(Catalog.byCode("P01"), quantity));
@@ -54,6 +58,7 @@ class CartTest {
 
     @Test
     @DisplayName("TC-UNIT-047 subtotal() = tong (gia x so luong)")
+    @TmsLink("KTPM-114")
     void subtotalCalculation() {
         cart.add(Catalog.byCode("P01"), 2);   // 150.000 x 2 = 300.000
         cart.add(Catalog.byCode("P05"), 1);   // 120.000 x 1 = 120.000
@@ -63,6 +68,7 @@ class CartTest {
 
     @Test
     @DisplayName("TC-UNIT-048 remove() xoa san pham; xoa san pham khong co -> loi")
+    @TmsLink("KTPM-113")
     void removeProduct() {
         cart.add(Catalog.byCode("P01"), 1);
         cart.remove("P01");
@@ -72,6 +78,7 @@ class CartTest {
 
     @Test
     @DisplayName("TC-UNIT-046 [BIEN] Loai san pham thu 6 -> tu choi")
+    @TmsLink("KTPM-111")
     void sixthDistinctProductRejected() {
         for (String code : new String[]{"P01", "P02", "P03", "P04", "P05"}) {
             cart.add(Catalog.byCode(code), 1);
@@ -83,6 +90,7 @@ class CartTest {
 
     @Test
     @DisplayName("TC-UNIT-049 clear() xoa toan bo gio, subtotal ve 0")
+    @TmsLink("KTPM-113")
     void clearCart() {
         cart.add(Catalog.byCode("P02"), 2);
         cart.clear();
