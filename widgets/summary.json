@@ -1,1 +1,1 @@
-{"reportName":"MiniShop Automation - unit","testRuns":[],"statistic":{"failed":0,"broken":0,"skipped":0,"passed":64,"unknown":0,"total":64},"time":{"start":1787423049181,"stop":1787423049880,"duration":699,"minDuration":1,"maxDuration":78,"sumDuration":311}}
+{"reportName":"MiniShop Automation - unit","testRuns":[],"statistic":{"failed":0,"broken":0,"skipped":0,"passed":64,"unknown":0,"total":64},"time":{"start":1787423570231,"stop":1787423570888,"duration":657,"minDuration":0,"maxDuration":82,"sumDuration":269}}
