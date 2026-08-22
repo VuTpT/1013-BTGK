@@ -47,7 +47,7 @@ class CalculatorTest {
             "-2, 3, 1"
     })
     @DisplayName("TC-UNIT-001 add() tra ve tong hai so")
-    @TmsLink("KTPM-150")
+    @TmsLink("MS-28")
     @Story("Phep cong")
     void add_returnsSum(double a, double b, double expected) {
         calculator.setA(a);
@@ -57,7 +57,7 @@ class CalculatorTest {
 
     @Test
     @DisplayName("TC-UNIT-002 add() KHONG tra ve gia tri sai (notEquals)")
-    @TmsLink("KTPM-150")
+    @TmsLink("MS-28")
     void add_notEqualsWrongValue() {
         calculator = new Calculator(2, 3);
         assertNotEquals(6.0, calculator.add(), DELTA);
@@ -65,14 +65,14 @@ class CalculatorTest {
 
     @Test
     @DisplayName("TC-UNIT-003 div() tra ve thuong hai so")
-    @TmsLink("KTPM-150")
+    @TmsLink("MS-28")
     void div_returnsQuotient() {
         assertEquals(2.0, new Calculator(6, 3).div(), DELTA);
     }
 
     @Test
     @DisplayName("TC-UNIT-004 div() nem ArithmeticException khi chia cho 0")
-    @TmsLink("KTPM-150")
+    @TmsLink("MS-28")
     @Severity(SeverityLevel.CRITICAL)
     void div_throwsWhenDivideByZero() {
         Calculator c = new Calculator(6, 0);
@@ -82,7 +82,7 @@ class CalculatorTest {
 
     @Test
     @DisplayName("TC-UNIT-005 Kiem tra gop 4 phep tinh tren cung bo du lieu (assertAll)")
-    @TmsLink("KTPM-150")
+    @TmsLink("MS-28")
     void allOperations_onSameData() {
         Calculator c = new Calculator(10, 4);
         assertAll("bon phep tinh voi a=10, b=4",

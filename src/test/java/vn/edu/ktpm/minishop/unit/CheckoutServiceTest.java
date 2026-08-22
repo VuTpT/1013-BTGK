@@ -34,7 +34,7 @@ class CheckoutServiceTest {
 
     @Test
     @DisplayName("TC-UNIT-075 Dat hang thanh cong -> tra ve ma don va xoa sach gio")
-    @TmsLink("KTPM-134")
+    @TmsLink("MS-26")
     void placeOrderSuccess() {
         cart.add(Catalog.byCode("P03"), 1);   // 500.000
         String orderId = service.placeOrder(cart, false, null, "Nguyen Van A", "0912345678", "Ha Noi");
@@ -47,7 +47,7 @@ class CheckoutServiceTest {
 
     @Test
     @DisplayName("TC-UNIT-077 Thong tin sai -> nem CartException, gio hang KHONG bi xoa")
-    @TmsLink("KTPM-134")
+    @TmsLink("MS-26")
     void placeOrderInvalidInfoKeepsCart() {
         cart.add(Catalog.byCode("P01"), 2);
 

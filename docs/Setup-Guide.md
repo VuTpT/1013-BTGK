@@ -211,23 +211,38 @@ KTPM bấm được, mở đúng issue trên Jira.
    | `JIRA_API_TOKEN` | token vừa tạo ở bước 2 |
 
 4. *(tuỳ chọn)* Tab **Variables** → thêm `JIRA_LAUNCH_ISSUE` = mã issue nhận bình luận tổng kết.
-   Không khai thì mặc định là `KTPM-1`.
+   Không khai thì mặc định là `MS-34`.
 
 Sau khi push vào `main`, workflow sẽ tự động: sinh báo cáo Allure HTML → publish lên GitHub Pages →
 bình luận vào Jira. Test nào hỏng thì [`ci/notify-jira.py`](../ci/notify-jira.py) đọc `@TmsLink` của
 test đó và bình luận thẳng vào đúng issue KTPM tương ứng.
 
-**Chạy thử tại máy trước khi push** (không gọi Jira thật):
+**Kiểm tra cấu hình trước khi push** — lệnh này gọi Jira thật nhưng **chỉ đọc**, không ghi gì.
+Nó xác thực tài khoản rồi đối chiếu từng mã KTPM trong code với issue có thật trên board:
+
+```bash
+# Windows PowerShell
+$env:JIRA_BASE_URL="https://sinhvien-team-xej6z3t8.atlassian.net"
+$env:JIRA_EMAIL="<email-atlassian>"
+$env:JIRA_API_TOKEN="<token>"
+mvn clean test
+python ci/notify-jira.py --check --launch-issue MS-34
+```
+
+Kết quả mong đợi: `Ket luan: 25 ma dung, 0 ma khong tim thay.` Nếu có mã báo `KHONG ... HTTP 404`
+thì mã trong code lệch với mã Jira thật — mở board xem số thật rồi sửa lại `@TmsLink`.
+
+**Chạy thử phần gửi báo cáo** (không gọi Jira thật):
 
 ```bash
 mvn clean test
-python ci/notify-jira.py --results target/allure-results     --report-url "https://vutpt.github.io/1013-BTGK/"     --launch-issue KTPM-1 --build "thu-tai-may" --dry-run
+python ci/notify-jira.py --results target/allure-results     --report-url "https://vutpt.github.io/1013-BTGK/"     --launch-issue MS-34 --build "thu-tai-may" --dry-run
 ```
 
 Thêm `--create-bug KTPM` nếu muốn CI tự tạo issue **Bug** mỗi khi có test hỏng (đúng kịch bản cảnh 9).
 
 ✅ **Kiểm chứng**: tab **Actions** xanh → mở `https://<tai-khoan>.github.io/<ten-repo>/` thấy dashboard
-Allure → mở issue `KTPM-1` trên Jira thấy bình luận mới kèm link báo cáo.
+Allure → mở issue `MS-34` trên Jira thấy bình luận mới kèm link báo cáo.
 
 > Allure bản mã nguồn mở **không** đẩy thẳng kết quả vào Jira Cloud được: plugin chính thức
 > (`ALLURE_JIRA_ENABLED`) bắt buộc app *Allure for Jira*, mà app đó chỉ có bản **Jira Server** và đã
@@ -283,5 +298,6 @@ Allure → mở issue `KTPM-1` trên Jira thấy bình luận mới kèm link b�
 - [ ] Jira board có issue và sprint
 - [ ] `allure.properties` trỏ đúng site Jira, mục **Links** trong report bấm sang Jira được
 - [ ] Đã khai 3 secret `JIRA_*` và bật GitHub Pages nhánh `gh-pages`
+- [ ] `python ci/notify-jira.py --check` báo **0 mã không tìm thấy**
 - [ ] Trang `https://<tai-khoan>.github.io/<ten-repo>/` mở được báo cáo Allure
 - [ ] Đã tạo sẵn Run Configuration đặt tên rõ ràng trong Eclipse (`1-Unit test`, `2-UI test`, `3-Coverage`)

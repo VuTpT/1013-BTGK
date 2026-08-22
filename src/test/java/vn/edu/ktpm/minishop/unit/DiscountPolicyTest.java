@@ -42,7 +42,7 @@ class DiscountPolicyTest {
             "false | 100000 | NULL   |  0"    // R8: F F F
     }, delimiter = '|', nullValues = "NULL")
     @DisplayName("TC-UNIT-050 Phu du 8 rule cua bang quyet dinh")
-    @TmsLink("KTPM-120")
+    @TmsLink("MS-18")
     @Tag("smoke")
     @Story("Bang quyet dinh")
     void decisionTable(boolean vip, long subtotal, String coupon, int expectedPercent) {
@@ -55,7 +55,7 @@ class DiscountPolicyTest {
             "500000, 5"     // dung nguong -> duoc uu dai
     })
     @DisplayName("TC-UNIT-051 [BIEN] Nguong 500.000 duoc tinh la >= (khach thuong, khong ma)")
-    @TmsLink("KTPM-121")
+    @TmsLink("MS-19")
     void thresholdBoundary(long subtotal, int expectedPercent) {
         assertEquals(expectedPercent, DiscountPolicy.discountPercent(false, subtotal, null));
     }
@@ -68,7 +68,7 @@ class DiscountPolicyTest {
             "true  | 600000 | SALE10 | 450000"    // giam 25%
     }, delimiter = '|', nullValues = "NULL")
     @DisplayName("TC-UNIT-055 finalAmount() tru dung so tien va lam tron XUONG")
-    @TmsLink("KTPM-123")
+    @TmsLink("MS-21")
     void finalAmountCalculation(boolean vip, long subtotal, String coupon, long expected) {
         assertEquals(expected, DiscountPolicy.finalAmount(vip, subtotal, coupon));
     }
@@ -80,7 +80,7 @@ class DiscountPolicyTest {
             "SALE11   | false"     // ma khong ton tai
     }, delimiter = '|')
     @DisplayName("TC-UNIT-052 Ma giam gia: khong phan biet hoa thuong, tu cat khoang trang")
-    @TmsLink("KTPM-122")
+    @TmsLink("MS-20")
     void couponNormalization(String coupon, boolean expectedValid) {
         assertEquals(expectedValid, DiscountPolicy.isValidCoupon(coupon));
     }

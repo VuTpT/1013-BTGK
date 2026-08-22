@@ -166,32 +166,32 @@ Mục đích: chứng minh **mọi yêu cầu đều được kiểm thử** và
 
 ### 5.1 Yêu cầu → Test case
 
-| Yêu cầu | Nội dung | Kỹ thuật thiết kế | Tầng UNIT | Tầng UI | Jira | Kết quả |
+| Yêu cầu | Nội dung | Kỹ thuật thiết kế | Tầng UNIT | Tầng UI | Jira (key thật · mã nội bộ) | Kết quả |
 | --- | --- | --- | --- | --- | --- | --- |
-| **FR-01.1** | Đăng nhập đúng → vào hệ thống | Sơ đồ trạng thái S1 | TC-UNIT-030 | TC-WEB-001, TC-PW-001, TC-MOB-001 | KTPM-101 | ✅ Pass |
-| **FR-01.2** | Sai < 3 lần → cho nhập lại | S2, S3 | TC-UNIT-031 | TC-PW-002 | KTPM-102 | ✅ Pass |
-| **FR-01.3** | Sai đủ 3 lần → khóa tạm | S4 | TC-UNIT-032 | TC-PW-002 | KTPM-103 | ✅ Pass |
-| **FR-01.4** | Hết thời gian khóa → tự mở, reset bộ đếm | S6, S7 | TC-UNIT-035 | — (chỉ ở tầng unit) | KTPM-104 | ✅ Pass |
-| **FR-01.5** | Đang khóa, nhập đúng vẫn bị từ chối | S5 | TC-UNIT-033 | TC-PW-002 | KTPM-105 | ✅ Pass |
-| **FR-01.6** | Bỏ trống ô nhập → báo lỗi | S8 | — | TC-WEB-002 (dòng CSV 2) | KTPM-106 | ✅ Pass |
-| **FR-01.7** | Tài khoản bị quản trị viên khóa | S10 | TC-UNIT-037 | TC-WEB-002 (dòng CSV 3) | KTPM-107 | ✅ Pass |
-| **FR-02.1** | Số lượng mỗi sản phẩm 1..10 | **BVA** | TC-UNIT-040, 041 | TC-WEB-010 | KTPM-110 | ✅ Pass |
-| **FR-02.2** | Tối đa 5 loại sản phẩm | **BVA** | TC-UNIT-046 | — | KTPM-111 | ✅ Pass |
-| **FR-02.3** | Thêm sản phẩm vào giỏ | EP | TC-UNIT-040 | TC-WEB-010, TC-PW-003, TC-MOB-002 | KTPM-112 | ✅ Pass |
-| **FR-02.4** | Xóa 1 sản phẩm / xóa toàn bộ giỏ | EP | TC-UNIT-048, 049 | TC-WEB-014 | KTPM-113 | ✅ Pass |
-| **FR-02.5** | Tạm tính = Σ(giá × số lượng) | Tính toán | TC-UNIT-047 | TC-WEB-016 | KTPM-114 | ✅ Pass |
-| **FR-03.1** | 8 rule khuyến mãi | **Bảng quyết định** | TC-UNIT-050 (8 rule) | TC-WEB-030 (R1) | KTPM-120 | ✅ Pass |
-| **FR-03.2** | Ngưỡng 500.000 tính là ≥ | **BVA** | TC-UNIT-051 | TC-WEB-030 | KTPM-121 | ✅ Pass |
-| **FR-03.3** | Mã giảm giá: không phân biệt hoa thường, cắt khoảng trắng | EP | TC-UNIT-052 | TC-WEB-030 | KTPM-122 | ✅ Pass |
-| **FR-03.4** | Tổng thanh toán trừ đúng số tiền | Tính toán | TC-UNIT-055 | TC-WEB-030 | KTPM-123 | ✅ Pass |
-| **FR-04.1** | Họ tên 1–50 ký tự, chỉ chữ và khoảng trắng | **EP + BVA** | TC-UNIT-061, 062, 063 | TC-WEB-021 | KTPM-130 | ✅ Pass |
-| **FR-04.2** | SĐT đúng 10 số, bắt đầu bằng 0 | **EP + BVA** | TC-UNIT-065, 066 | TC-WEB-020 | KTPM-131 | ✅ Pass |
-| **FR-04.3** | Địa chỉ 1–100 ký tự | **BVA** | TC-UNIT-067 | TC-WEB-020 | KTPM-132 | ✅ Pass |
-| **FR-04.4** | Giỏ rỗng → không cho thanh toán | EP | TC-UNIT-069 | — | KTPM-133 | ✅ Pass |
-| **FR-04.5** | Đặt hàng thành công → mã đơn + xóa giỏ | Luồng chính | TC-UNIT-075, 077 | TC-WEB-020, 030 | KTPM-134 | ✅ Pass |
-| **FR-05** | Đăng xuất về màn hình đăng nhập | Sơ đồ trạng thái S11 | — | TC-WEB-006 | KTPM-140 | ✅ Pass |
-| **FR-06.1** | `Calculator` 4 phép tính + chia 0 | EP + lớp không hợp lệ | TC-UNIT-001..005 | — | KTPM-150 | ✅ Pass |
-| **FR-06.2** | `Rational` chuẩn hóa, 4 phép toán, so sánh | **Phủ lệnh/nhánh + Cyclomatic** | TC-UNIT-011..022 | — | KTPM-151 | ✅ Pass |
+| **FR-01.1** | Đăng nhập đúng → vào hệ thống | Sơ đồ trạng thái S1 | TC-UNIT-030 | TC-WEB-001, TC-PW-001, TC-MOB-001 | MS-6 (KTPM-101) | ✅ Pass |
+| **FR-01.2** | Sai < 3 lần → cho nhập lại | S2, S3 | TC-UNIT-031 | TC-PW-002 | MS-7 (KTPM-102) | ✅ Pass |
+| **FR-01.3** | Sai đủ 3 lần → khóa tạm | S4 | TC-UNIT-032 | TC-PW-002 | MS-8 (KTPM-103) | ✅ Pass |
+| **FR-01.4** | Hết thời gian khóa → tự mở, reset bộ đếm | S6, S7 | TC-UNIT-035 | — (chỉ ở tầng unit) | MS-9 (KTPM-104) | ✅ Pass |
+| **FR-01.5** | Đang khóa, nhập đúng vẫn bị từ chối | S5 | TC-UNIT-033 | TC-PW-002 | MS-10 (KTPM-105) | ✅ Pass |
+| **FR-01.6** | Bỏ trống ô nhập → báo lỗi | S8 | — | TC-WEB-002 (dòng CSV 2) | MS-11 (KTPM-106) | ✅ Pass |
+| **FR-01.7** | Tài khoản bị quản trị viên khóa | S10 | TC-UNIT-037 | TC-WEB-002 (dòng CSV 3) | MS-12 (KTPM-107) | ✅ Pass |
+| **FR-02.1** | Số lượng mỗi sản phẩm 1..10 | **BVA** | TC-UNIT-040, 041 | TC-WEB-010 | MS-13 (KTPM-110) | ✅ Pass |
+| **FR-02.2** | Tối đa 5 loại sản phẩm | **BVA** | TC-UNIT-046 | — | MS-14 (KTPM-111) | ✅ Pass |
+| **FR-02.3** | Thêm sản phẩm vào giỏ | EP | TC-UNIT-040 | TC-WEB-010, TC-PW-003, TC-MOB-002 | MS-15 (KTPM-112) | ✅ Pass |
+| **FR-02.4** | Xóa 1 sản phẩm / xóa toàn bộ giỏ | EP | TC-UNIT-048, 049 | TC-WEB-014 | MS-16 (KTPM-113) | ✅ Pass |
+| **FR-02.5** | Tạm tính = Σ(giá × số lượng) | Tính toán | TC-UNIT-047 | TC-WEB-016 | MS-17 (KTPM-114) | ✅ Pass |
+| **FR-03.1** | 8 rule khuyến mãi | **Bảng quyết định** | TC-UNIT-050 (8 rule) | TC-WEB-030 (R1) | MS-18 (KTPM-120) | ✅ Pass |
+| **FR-03.2** | Ngưỡng 500.000 tính là ≥ | **BVA** | TC-UNIT-051 | TC-WEB-030 | MS-19 (KTPM-121) | ✅ Pass |
+| **FR-03.3** | Mã giảm giá: không phân biệt hoa thường, cắt khoảng trắng | EP | TC-UNIT-052 | TC-WEB-030 | MS-20 (KTPM-122) | ✅ Pass |
+| **FR-03.4** | Tổng thanh toán trừ đúng số tiền | Tính toán | TC-UNIT-055 | TC-WEB-030 | MS-21 (KTPM-123) | ✅ Pass |
+| **FR-04.1** | Họ tên 1–50 ký tự, chỉ chữ và khoảng trắng | **EP + BVA** | TC-UNIT-061, 062, 063 | TC-WEB-021 | MS-22 (KTPM-130) | ✅ Pass |
+| **FR-04.2** | SĐT đúng 10 số, bắt đầu bằng 0 | **EP + BVA** | TC-UNIT-065, 066 | TC-WEB-020 | MS-23 (KTPM-131) | ✅ Pass |
+| **FR-04.3** | Địa chỉ 1–100 ký tự | **BVA** | TC-UNIT-067 | TC-WEB-020 | MS-24 (KTPM-132) | ✅ Pass |
+| **FR-04.4** | Giỏ rỗng → không cho thanh toán | EP | TC-UNIT-069 | — | MS-25 (KTPM-133) | ✅ Pass |
+| **FR-04.5** | Đặt hàng thành công → mã đơn + xóa giỏ | Luồng chính | TC-UNIT-075, 077 | TC-WEB-020, 030 | MS-26 (KTPM-134) | ✅ Pass |
+| **FR-05** | Đăng xuất về màn hình đăng nhập | Sơ đồ trạng thái S11 | — | TC-WEB-006 | MS-27 (KTPM-140) | ✅ Pass |
+| **FR-06.1** | `Calculator` 4 phép tính + chia 0 | EP + lớp không hợp lệ | TC-UNIT-001..005 | — | MS-28 (KTPM-150) | ✅ Pass |
+| **FR-06.2** | `Rational` chuẩn hóa, 4 phép toán, so sánh | **Phủ lệnh/nhánh + Cyclomatic** | TC-UNIT-011..022 | — | MS-29 (KTPM-151) | ✅ Pass |
 
 **Độ phủ yêu cầu: 24/24 = 100%** (giữ nguyên như bản v1, dù số test case đã giảm 57%).
 

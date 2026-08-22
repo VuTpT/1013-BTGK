@@ -88,7 +88,7 @@ class MiniShopMobileTest {
     @Test
     @Order(1)
     @DisplayName("TC-MOB-001 Dang nhap tren thiet bi di dong")
-    @TmsLink("KTPM-101")
+    @TmsLink("MS-6")
     void tcMob001_login() {
         driver.findElement(testId("username")).sendKeys("standard_user");
         driver.findElement(testId("password")).sendKeys("secret_sauce");
@@ -100,7 +100,7 @@ class MiniShopMobileTest {
     @Test
     @Order(2)
     @DisplayName("TC-MOB-002 Them san pham vao gio tren thiet bi di dong")
-    @TmsLink("KTPM-112")
+    @TmsLink("MS-15")
     void tcMob002_addToCart() {
         driver.findElement(testId("add-P01")).click();
         assertEquals("1", driver.findElement(testId("cart-count")).getText());

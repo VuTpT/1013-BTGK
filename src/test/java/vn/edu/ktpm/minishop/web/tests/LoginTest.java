@@ -51,7 +51,7 @@ public class LoginTest extends BaseTest {
         return rows.toArray(new Object[0][]);
     }
 
-    @TmsLink("KTPM-101")
+    @TmsLink("MS-6")
     @Test(groups = {"smoke"}, priority = 1, description = "TC-WEB-001 Dang nhap voi tai khoan hop le")
     @Severity(SeverityLevel.BLOCKER)
     public void tcWeb001_loginWithValidAccount() {
@@ -62,8 +62,8 @@ public class LoginTest extends BaseTest {
         assertEquals(products.cartCount(), 0, "Gio hang moi phai rong");
     }
 
-    @TmsLink("KTPM-106")
-    @TmsLink("KTPM-107")
+    @TmsLink("MS-11")
+    @TmsLink("MS-12")
     @Test(dataProvider = "invalidLogins", groups = {"regression"}, priority = 2,
             description = "TC-WEB-002 Dang nhap khong hop le (data-driven tu CSV)")
     @Severity(SeverityLevel.CRITICAL)
@@ -79,7 +79,7 @@ public class LoginTest extends BaseTest {
 
 
 
-    @TmsLink("KTPM-140")
+    @TmsLink("MS-27")
     @Test(groups = {"smoke"}, priority = 3, description = "TC-WEB-006 Dang xuat quay ve trang dang nhap")
     public void tcWeb006_logout() {
         LoginPage login = new LoginPage(driver)

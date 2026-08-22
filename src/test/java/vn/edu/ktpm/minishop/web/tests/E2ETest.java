@@ -24,11 +24,11 @@ import static org.testng.Assert.assertTrue;
 @Feature("Luong dau-cuoi")
 public class E2ETest extends BaseTest {
 
-    @TmsLink("KTPM-120")
-    @TmsLink("KTPM-121")
-    @TmsLink("KTPM-122")
-    @TmsLink("KTPM-123")
-    @TmsLink("KTPM-134")
+    @TmsLink("MS-18")
+    @TmsLink("MS-19")
+    @TmsLink("MS-20")
+    @TmsLink("MS-21")
+    @TmsLink("MS-26")
     @Test(groups = {"smoke"}, description = "TC-WEB-030 Khach VIP mua hang va thanh toan thanh cong")
     @Severity(SeverityLevel.BLOCKER)
     @Description("Dang nhap VIP -> them 2 loai san pham -> ap ma SALE10 -> kiem tra giam 25% -> dat hang")

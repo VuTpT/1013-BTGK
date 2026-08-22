@@ -42,7 +42,7 @@ class RationalTest {
                 "1, -2, -1, 2"      // day dau am len tu so
         })
         @DisplayName("TC-UNIT-011 Phan so luon o dang toi gian, mau so duong")
-        @TmsLink("KTPM-151")
+        @TmsLink("MS-29")
         void normalize(long n, long d, long expectedN, long expectedD) throws Illegal {
             Rational r = of(n, d);
             assertEquals(expectedN, r.getNumerator());
@@ -51,7 +51,7 @@ class RationalTest {
 
         @Test
         @DisplayName("TC-UNIT-012 Mau so bang 0 -> nem Illegal")
-        @TmsLink("KTPM-151")
+        @TmsLink("MS-29")
         @Tag("smoke")
         void zeroDenominatorThrows() {
             Illegal ex = assertThrows(Illegal.class, () -> of(1, 0));
@@ -68,7 +68,7 @@ class RationalTest {
                 "1, 2, 1, 3, 5, 6"
         })
         @DisplayName("TC-UNIT-013 add()")
-        @TmsLink("KTPM-151")
+        @TmsLink("MS-29")
         void add(long n1, long d1, long n2, long d2, long en, long ed) throws Illegal {
             Rational r = of(n1, d1);
             r.add(of(n2, d2));
@@ -80,7 +80,7 @@ class RationalTest {
                 "1, 2, 1, 3, 1, 6"
         })
         @DisplayName("TC-UNIT-014 subtract()")
-        @TmsLink("KTPM-151")
+        @TmsLink("MS-29")
         void subtract(long n1, long d1, long n2, long d2, long en, long ed) throws Illegal {
             Rational r = of(n1, d1);
             r.subtract(of(n2, d2));
@@ -92,7 +92,7 @@ class RationalTest {
                 "2, 3, 3, 4, 1, 2"
         })
         @DisplayName("TC-UNIT-015 multiply()")
-        @TmsLink("KTPM-151")
+        @TmsLink("MS-29")
         void multiply(long n1, long d1, long n2, long d2, long en, long ed) throws Illegal {
             Rational r = of(n1, d1);
             r.multiply(of(n2, d2));
@@ -105,7 +105,7 @@ class RationalTest {
                 "1, 2, -1, 3, -3, 2"    // chia cho phan so am -> dau am len tu so
         })
         @DisplayName("TC-UNIT-016 divide() - phu cac duong di doc lap cua luu do")
-        @TmsLink("KTPM-151")
+        @TmsLink("MS-29")
         void divide(long n1, long d1, long n2, long d2, long en, long ed) throws Illegal {
             Rational r = of(n1, d1);
             r.divide(of(n2, d2));
@@ -114,7 +114,7 @@ class RationalTest {
 
         @Test
         @DisplayName("TC-UNIT-017 divide() cho phan so 0 -> nem Illegal")
-        @TmsLink("KTPM-151")
+        @TmsLink("MS-29")
         void divideByZeroRationalThrows() throws Illegal {
             Rational r = of(1, 2);
             Rational zero = of(0, 5);
@@ -131,14 +131,14 @@ class RationalTest {
 
         @Test
         @DisplayName("TC-UNIT-018 equals() dung cho hai phan so cung gia tri khac cach viet")
-        @TmsLink("KTPM-151")
+        @TmsLink("MS-29")
         void equalsSameValue() throws Illegal {
             assertEquals(of(1, 2), of(2, 4));
         }
 
         @Test
         @DisplayName("TC-UNIT-019 notEquals cho hai phan so khac gia tri / khac kieu")
-        @TmsLink("KTPM-151")
+        @TmsLink("MS-29")
         void notEqualsDifferentValue() throws Illegal {
             assertNotEquals(of(1, 2), of(1, 3));
             assertNotEquals(of(1, 2), "1/2");
@@ -150,7 +150,7 @@ class RationalTest {
                 "4, 2, 2"
         })
         @DisplayName("TC-UNIT-022 toString() rut gon, bo mau so 1")
-        @TmsLink("KTPM-151")
+        @TmsLink("MS-29")
         void toStringFormat(long n, long d, String expected) throws Illegal {
             assertEquals(expected, of(n, d).toString());
         }

@@ -40,8 +40,8 @@ public class CartTest extends BaseTest {
         return new Object[][]{{0}, {11}, {99}};
     }
 
-    @TmsLink("KTPM-110")
-    @TmsLink("KTPM-112")
+    @TmsLink("MS-13")
+    @TmsLink("MS-15")
     @Test(groups = {"smoke"}, priority = 1, description = "TC-WEB-010 Them san pham vao gio")
     @Severity(SeverityLevel.BLOCKER)
     public void tcWeb010_addProductToCart() {
@@ -56,7 +56,7 @@ public class CartTest extends BaseTest {
 
 
 
-    @TmsLink("KTPM-113")
+    @TmsLink("MS-16")
     @Test(groups = {"regression"}, priority = 5, description = "TC-WEB-014 Xoa mot san pham khoi gio")
     public void tcWeb014_removeProduct() {
         CartPage cart = loginAsStandard().addToCart("P01", 1).addToCart("P02", 1).openCart();
@@ -67,7 +67,7 @@ public class CartTest extends BaseTest {
         assertEquals(cart.subtotal(), 350_000L);
     }
 
-    @TmsLink("KTPM-114")
+    @TmsLink("MS-17")
     @Test(groups = {"smoke"}, priority = 7,
             description = "TC-WEB-016 Tam tinh = tong (gia x so luong)")
     public void tcWeb016_subtotalCalculation() {

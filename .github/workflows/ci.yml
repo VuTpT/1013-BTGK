@@ -14,7 +14,10 @@
 #       JIRA_BASE_URL   vd https://sinhvien-team-xej6z3t8.atlassian.net
 #       JIRA_EMAIL      email tài khoản Atlassian
 #       JIRA_API_TOKEN  tạo tại id.atlassian.com/manage-profile/security/api-tokens
-#   - (tuỳ chọn) Variables: JIRA_LAUNCH_ISSUE - issue nhận bình luận tổng kết, mặc định KTPM-1
+#   - (tuỳ chọn) Variables: JIRA_LAUNCH_ISSUE - issue nhận bình luận tổng kết, mặc định MS-34
+#
+# Mã issue thật của project là MS-6..MS-41; chuỗi KTPM-xxx chỉ là mã nội bộ nằm
+# trong TIÊU ĐỀ issue, không phải key - xem cột Jira trong docs/TestCases.md.
 
 name: CI - MiniShop Automation
 
@@ -129,7 +132,7 @@ jobs:
           python3 ci/notify-jira.py \
             --results target/allure-results \
             --report-url "$PAGES_URL" \
-            --launch-issue "${{ vars.JIRA_LAUNCH_ISSUE || 'KTPM-1' }}" \
+            --launch-issue "${{ vars.JIRA_LAUNCH_ISSUE || 'MS-34' }}" \
             --build "CI #${{ github.run_number }}" \
             --build-url "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
 
