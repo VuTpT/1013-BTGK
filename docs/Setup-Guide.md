@@ -244,6 +244,26 @@ Thêm `--create-bug KTPM` nếu muốn CI tự tạo issue **Bug** mỗi khi có
 ✅ **Kiểm chứng**: tab **Actions** xanh → mở `https://<tai-khoan>.github.io/<ten-repo>/` thấy dashboard
 Allure → mở issue `MS-34` trên Jira thấy bình luận mới kèm link báo cáo.
 
+### Không thấy bình luận trên Jira dù Actions xanh
+
+Cái bẫy hay gặp nhất: **file `.env` chỉ có tác dụng ở máy bạn**. Nó nằm trong `.gitignore` nên
+không bao giờ được đẩy lên GitHub — CI không hề nhìn thấy nó. Muốn CI gọi được Jira thì **bắt buộc**
+phải khai lại 3 giá trị đó ở *Settings → Secrets and variables → Actions → Secrets*.
+
+Bước gửi Jira đặt `continue-on-error: true` (sự cố Jira không nên làm đỏ cả build), nên khi nó hỏng
+thì GitHub **vẫn báo step đó success**. Vì vậy script chủ động in chú thích `::error::` — lỗi sẽ hiện
+thành khung đỏ ngay đầu trang run và một dòng trong phần *Summary*. Nếu Actions xanh mà Jira im lặng,
+mở trang run xem có khung đỏ đó không.
+
+Kiểm tra nhanh từng khả năng:
+
+| Triệu chứng trên trang run | Nguyên nhân | Cách sửa |
+| --- | --- | --- |
+| `Thieu bien: JIRA_BASE_URL, ...` | Chưa khai secrets trên GitHub | Khai 3 secret như bảng ở trên |
+| `HTTP 401 (sai email hoac API token)` | Token hết hạn hoặc sai email | Tạo lại token, cập nhật secret |
+| `HTTP 404 (issue ... khong ton tai)` | Sai mã issue | Chạy `--check` để đối chiếu mã thật |
+| Trang Pages trả 404 | Chưa bật Pages | *Settings → Pages → Source* = nhánh `gh-pages` |
+
 > Allure bản mã nguồn mở **không** đẩy thẳng kết quả vào Jira Cloud được: plugin chính thức
 > (`ALLURE_JIRA_ENABLED`) bắt buộc app *Allure for Jira*, mà app đó chỉ có bản **Jira Server** và đã
 > ngừng hỗ trợ. Vì vậy chiều ngược ở đây đi bằng REST API v2 của Jira Cloud.

@@ -39,6 +39,30 @@ for _stream in (sys.stdout, sys.stderr):
         _stream.reconfigure(encoding="utf-8", errors="replace")
 
 
+# ------------------------------------------------------------- bao loi len CI
+IN_ACTIONS = os.environ.get("GITHUB_ACTIONS") == "true"
+
+
+def annotate(level, message):
+    """In ra man hinh; neu dang chay tren GitHub Actions thi in them dang chu thich.
+
+    Buoc goi script nay dat continue-on-error: true (su co Jira khong nen lam
+    do ca build). Doi lai, loi phai hien that ro tren trang run - neu khong
+    no se hong am tham va khong ai biet.
+    """
+    print(message)
+    if IN_ACTIONS:
+        one_line = message.replace("\n", " ")
+        print("::%s::%s" % (level, one_line))
+        summary = os.environ.get("GITHUB_STEP_SUMMARY")
+        if summary and level in ("error", "warning"):
+            try:
+                with open(summary, "a", encoding="utf-8") as fh:
+                    fh.write("**Jira: %s** - %s\n\n" % (level.upper(), one_line))
+            except OSError:
+                pass
+
+
 # --------------------------------------------------------------------- doc .env
 def load_env_file(path):
     """Nap bien tu file .env cho lan chay tai may.
@@ -261,13 +285,13 @@ def main():
         return preflight(args)
 
     if not os.path.isdir(args.results):
-        print("LOI: khong thay thu muc ket qua %s" % args.results)
+        annotate("error", "Khong thay thu muc ket qua Allure: %s" % args.results)
         return 1
 
     stats, broken = read_results(args.results)
     total, line = summary_line(stats)
     if total == 0:
-        print("LOI: %s khong co file *-result.json nao" % args.results)
+        annotate("error", "%s khong co file *-result.json nao - test chua chay?" % args.results)
         return 1
 
     verdict = "DAT" if not broken else "HONG (%d test)" % len(broken)
@@ -277,7 +301,10 @@ def main():
     email = os.environ.get("JIRA_EMAIL", "")
     token = os.environ.get("JIRA_API_TOKEN", "")
     if not args.dry_run and not all([base, email, token]):
-        print("LOI: thieu JIRA_BASE_URL / JIRA_EMAIL / JIRA_API_TOKEN")
+        thieu = ", ".join(n for n, v in [("JIRA_BASE_URL", base), ("JIRA_EMAIL", email),
+                                         ("JIRA_API_TOKEN", token)] if not v)
+        annotate("error", "Thieu bien: %s. File .env KHONG duoc commit nen CI khong thay -> "
+                          "phai khai o Settings > Secrets and variables > Actions > Secrets." % thieu)
         return 1
 
     jira = Jira(base or "https://example.atlassian.net", email, token, args.dry_run)
@@ -304,7 +331,8 @@ def main():
             jira.comment(args.launch_issue, "\n".join(body))
             sent += 1
         except urllib.error.HTTPError as e:
-            print("  LOI HTTP %s: %s" % (e.code, e.read().decode("utf-8", "replace")[:200]))
+            hint = {401: " (sai email hoac API token)", 404: " (issue %s khong ton tai)" % args.launch_issue}.get(e.code, "")
+            annotate("error", "Khong binh luan duoc vao %s: HTTP %s%s" % (args.launch_issue, e.code, hint))
             return 1
 
     # 2) binh luan vao dung issue cua tung test hong
@@ -353,7 +381,11 @@ def main():
         except urllib.error.HTTPError as e:
             print("  LOI tao Bug HTTP %s: %s" % (e.code, e.read().decode("utf-8", "replace")[:200]))
 
-    print("Da gui %d yeu cau toi Jira%s." % (sent, " (dry-run)" if args.dry_run else ""))
+    msg = "Da gui %d yeu cau toi Jira%s." % (sent, " (dry-run)" if args.dry_run else "")
+    if sent == 0 and not args.dry_run:
+        annotate("warning", msg + " Khong co gi duoc gui - kiem tra --launch-issue.")
+    else:
+        annotate("notice", msg)
     return 0
 
 
